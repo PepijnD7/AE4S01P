@@ -29,7 +29,7 @@ rho_P = m_p/V_p
 
 def burnsurf(r, l, d_i, d_o, t):
     d_ilist = np.ones((len(t)))*d_i
-    d_list = d_ilist + r*t
+    d_list = d_ilist + 2*r*t
     d_list[d_list>=d_o] = d_o
     S_list = np.pi * l * d_list
     V_list = l * ((d_o/2)**2 - (d_list/2)**2) * np.pi
