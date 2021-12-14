@@ -11,13 +11,19 @@ l_p = 0.107
 d_out = 0.0766
 d_port = 0.025
 d_t = 8.37 / 1000
-alpha = 15 * np.pi / 180
+alpha1 = 15 * np.pi / 180
+alpha2 = 12 * np.pi / 180
 
 
 # Regression Rate
+
+
 def regrate(P, a, n):
     r = a * (P/Pref)**n
     return r
+
+def DivLoss(alpha):
+    return (1 + np.cos(alpha)) / 2
 
 
 P_list = np.arange(1, 500)*10**6
@@ -45,7 +51,7 @@ plt.plot(P_list, r_list*10**3)
 plt.xlabel("Chamber Pressure (Pa)")
 plt.ylabel("Regression rate (mm/s)")
 plt.grid()
-# plt.show()
+plt.show()
 
 r_c = r_list[P_list == 100*10**6]
 t_list = np.arange(0, 10, 0.1)
@@ -88,8 +94,7 @@ m_dot = r * S * rho_P
 
 c_star = linearize('Characteristic velocity_opt', P_c)
 C_f = linearize('Thrust coefficient_opt', P_c)
-lamda = (1 + np.cos(alpha)) / 2
-T = C_f * P_c * A_t * lamda
+T = C_f * P_c * A_t * DivLoss(alpha2)
 
 print(P_c, r, m_dot, T)
 
