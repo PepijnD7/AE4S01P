@@ -18,6 +18,7 @@ d_port = 0.025
 d_t = 8.37 / 1000
 alpha = 12 * np.pi / 180
 eps = 4
+T_a = 287.15
 
 A_t = (d_t ** 2 * np.pi / 4)
 
@@ -26,16 +27,16 @@ V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
 rho_p = m_p/V_p
 
 
-con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p]
-dummy = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p]
+con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p,T_a]
+dummy = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p,T_a]
 
-Increment = -25
+Increment = 10
 Differences = []
 conSim = Simulation(con)
 
 for i in range(len(con)):
     Difference_list_2 = []
-    connew = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p]
+    connew = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p,T_a]
     connew[i] = connew[i] + Increment / 100 * connew[i]
     print(connew)
 
@@ -54,7 +55,7 @@ print("Angle",Differences[3])
 print("\n")
 
 Index = int(input("What do you want to plot? Pressure = 1, Total impulse = 2, Mass flow = 3, Thrust = 4, Regression rate = 5, Specific Impulse = 6 "))
-IndexChange = int(input("Choose comparison: d_port = 0, d_out = 1 , l_p = 2 , alpha = 3 , eps = 4 , a = 5 , n = 6 , P_a = 7 , Pref = 8 , m_p = 9 , rho_p = 10 "))
+IndexChange = int(input("Choose comparison: d_port = 0, d_out = 1 , l_p = 2 , alpha = 3 , eps = 4 , a = 5 , n = 6 , P_a = 7 , Pref = 8 , m_p = 9 , rho_p = 10 , T_a = 11 "))
 NewValue = float(input("Percentage increase: "))
 
 print(con)

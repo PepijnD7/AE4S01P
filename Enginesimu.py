@@ -17,8 +17,9 @@ d_port = 0.025
 d_t = 8.37 / 1000
 alpha = 15 * np.pi / 180
 eps = 4
+T_a = 273.15 + 15
 
-con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p]
+con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p,T_a]
 
 
 # Regression Rate
@@ -119,7 +120,8 @@ d_reg = d_list-d_port
 # Simulation
 def Simulation(con):
     g0 = 9.81
-    d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p = con
+    olde = 0
+    d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p,T_a = con
 
     # Initial conditions
     P_c = 5 * Pref
@@ -158,8 +160,10 @@ def Simulation(con):
 
         a *= (10 ** (-6)) ** n
         P_c = (c_star * rho_p * a * S_burn / A_t) ** (1 / (1 - n))
+        T_c = linearize("Temperature",P_c)
 
-        a = 0.005132
+        a = 0.005132 * np.exp(olde * (T_c - T_a))
+        print(T_c,a)
         r_rate = regrate(P_c, a, n)
 
         m_dot = rho_p * r_rate * S_burn
@@ -186,26 +190,26 @@ def Simulation(con):
     I_list = I_list[1:]
     return np.array(t_list),np.array(p_list),np.array(I_list),np.array(m_list),np.array(T_list),np.array(r_list),np.array(Isp_list)
 
-# plt.plot(Simulation()[0], Simulation()[1], label='Chamber pressure')
-# plt.xlabel("Time [s]")
-# plt.ylabel("Pressure [Pa]")
-# plt.grid()
-# plt.legend()
-# plt.show()
-#
-# plt.plot(Simulation()[0], Simulation()[3], label='Mass flow')
-# plt.xlabel("Time [s]")
-# plt.ylabel("Mass flow [kg/s]")
-# plt.grid()
-# plt.legend()
-# plt.show()
-#
-# plt.plot(Simulation()[0], Simulation()[4], label='Thrust')
-# plt.xlabel("Time [s]")
-# plt.ylabel("Thrust [N]")
-# plt.grid()
-# plt.legend()
-# plt.show()
+plt.plot(Simulation(con)[0], Simulation(con)[1], label='Chamber pressure')
+plt.xlabel("Time [s]")
+plt.ylabel("Pressure [Pa]")
+plt.grid()
+plt.legend()
+plt.show()
+
+plt.plot(Simulation(con)[0], Simulation(con)[3], label='Mass flow')
+plt.xlabel("Time [s]")
+plt.ylabel("Mass flow [kg/s]")
+plt.grid()
+plt.legend()
+plt.show()
+
+plt.plot(Simulation(con)[0], Simulation(con)[4], label='Thrust')
+plt.xlabel("Time [s]")
+plt.ylabel("Thrust [N]")
+plt.grid()
+plt.legend()
+plt.show()
 #
 # plt.plot(Simulation()[0], Simulation()[2], label='Total impulse')
 # plt.xlabel("Time [s]")
