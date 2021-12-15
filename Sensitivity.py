@@ -10,7 +10,6 @@ n = 0.222
 Pref = 1*10**6
 P_a = 101325
 
-rho_p = 1720.49
 m_p = 0.758
 l_p = 0.107
 d_out = 0.0766
@@ -18,22 +17,50 @@ d_port = 0.025
 
 d_t = 8.37 / 1000
 alpha = 12 * np.pi / 180
-eta = 4
+eps = 4
 
 A_t = (d_t ** 2 * np.pi / 4)
 
+# Propellant mass variation
+V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
+rho_p = m_p/V_p
 
-con = [d_port,d_out,l_p,alpha,eta,a,n,P_a,Pref,m_p,rho_p]
-dummy = [d_port,d_out,l_p,alpha,eta,a,n,P_a,Pref,m_p,rho_p]
 
-Index = int(input("What do you want to plot? Pressure = 1, Total impulse = 2, Mass flow = 3, Thrust = 4, Regression rate = 5 "))
-IndexChange = int(input("Choose comparison: d_port = 0, d_out = 1,l_p = 2,alpha = 3,eta = 4,a = 5,n = 6,P_a = 7,Pref = 8,m_p = 9,rho_p = 10 "))
-NewValue = float(input("Input new value: "))
+con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p]
+dummy = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p]
+
+Increment = -25
+Differences = []
+conSim = Simulation(con)
+
+for i in range(len(con)):
+    Difference_list_2 = []
+    connew = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p]
+    connew[i] = connew[i] + Increment / 100 * connew[i]
+    print(connew)
+
+    for IO in range(1,7):
+        connewSim = Simulation(connew)
+        complen = np.min((len(conSim[IO]), len(connewSim[IO])))-1
+        Difference_list = 100 * (- conSim[IO][:complen] + connewSim[IO][:complen]) / conSim[IO][:complen]
+        Difference_list_2.append([Difference_list[0], Difference_list[-1], np.mean(Difference_list)])
+
+    Differences.append(Difference_list_2)
+
+print("\n")
+print(Differences)
+print("\n")
+print("Angle",Differences[3])
+print("\n")
+
+Index = int(input("What do you want to plot? Pressure = 1, Total impulse = 2, Mass flow = 3, Thrust = 4, Regression rate = 5, Specific Impulse = 6 "))
+IndexChange = int(input("Choose comparison: d_port = 0, d_out = 1 , l_p = 2 , alpha = 3 , eps = 4 , a = 5 , n = 6 , P_a = 7 , Pref = 8 , m_p = 9 , rho_p = 10 "))
+NewValue = float(input("Percentage increase: "))
 
 print(con)
 connew = dummy
 print(con)
-connew[IndexChange] = NewValue
+connew[IndexChange] = connew[IndexChange] + NewValue / 100 * connew[IndexChange]
 
 print(con, connew)
 
@@ -46,14 +73,14 @@ plt.legend()
 plt.show()
 
 plt.title("Percentage difference")
-plt.plot(Simulation(con)[0], 100 * np.abs(Simulation(con)[Index] - Simulation(con)[Index]) / Simulation(con)[Index])
+plt.plot(Simulation(con)[0], 100 * np.abs(Simulation(con)[Index] - Simulation(connew)[Index]) / Simulation(con)[Index])
 plt.xlabel("Time [s]")
 plt.ylabel("Difference [%]")
 plt.grid()
 plt.show()
 
 # plt.plot(Simulation()[0], Simulation()[1], label='Chamber pressure')
-# plt.plot(Simulation(a = 0.001)[0], Simulation(a = 0.001)[1], label='Chamber pressure eta = 2')
+# plt.plot(Simulation(a = 0.001)[0], Simulation(a = 0.001)[1], label='Chamber pressure eps = 2')
 # plt.xlabel("Time [s]")
 # plt.ylabel("Pressure [Pa]")
 # plt.grid()

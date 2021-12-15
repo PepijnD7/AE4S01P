@@ -2,6 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from Read_Data import linearize
 
+# TODO: Implement variation of a based on temperature variations
+
 # Propellant data
 a = 0.005132
 n = 0.222
@@ -116,6 +118,7 @@ d_reg = d_list-d_port
 
 # Simulation
 def Simulation(con):
+    g0 = 9.81
     d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p = con
 
     # Initial conditions
@@ -144,6 +147,7 @@ def Simulation(con):
     dt = 0.1
 
     m_list = []
+    Isp_list = []
     p_list = []
     T_list = []
     r_list = []
@@ -164,9 +168,11 @@ def Simulation(con):
         C_f0 = linearize('Thrust coefficient_opt', P_c)
         C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eps) + P_a / P_c) * eps
         T = C_f * P_c * A_t
-        # T = m_dot * c_star * linearize('Thrust coefficient_opt', P_c)
+        Isp = T / g0 / m_dot
+        # print(Isp - linearize("Specific impulse (by mass)", P_c))
 
         m_list.append(m_dot)
+        Isp_list.append(Isp)
         p_list.append(P_c)
         T_list.append(T)
         r_list.append(r_rate)
@@ -178,7 +184,7 @@ def Simulation(con):
 
     t_list = np.arange(0, dt*len(p_list), dt)
     I_list = I_list[1:]
-    return np.array(t_list),np.array(p_list),np.array(I_list),np.array(m_list),np.array(T_list),np.array(r_list)
+    return np.array(t_list),np.array(p_list),np.array(I_list),np.array(m_list),np.array(T_list),np.array(r_list),np.array(Isp_list)
 
 # plt.plot(Simulation()[0], Simulation()[1], label='Chamber pressure')
 # plt.xlabel("Time [s]")
