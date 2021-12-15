@@ -14,9 +14,9 @@ d_out = 0.0766
 d_port = 0.025
 d_t = 8.37 / 1000
 alpha = 15 * np.pi / 180
-eta = 4
+eps = 4
 
-con = [d_port,d_out,l_p,alpha,eta,a,n,P_a,Pref,m_p,rho_p]
+con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p]
 
 
 # Regression Rate
@@ -32,10 +32,10 @@ def DivLoss(alpha):
 def Kerckhove(Gamma):
     return np.sqrt(Gamma) * (2 / (1 + Gamma))**(0.5 * (Gamma + 1) / (Gamma - 1))
 
-def FindPratio(Gamma, eta):
+def FindPratio(Gamma, eps):
     Guess = 0.1
     for _ in range(10):
-        Guess = ( Kerckhove(Gamma)**2 / (eta**2 * (2 * Gamma / (Gamma - 1)) * (1 - Guess**((Gamma - 1) / Gamma))))**(Gamma / 2)
+        Guess = ( Kerckhove(Gamma)**2 / (eps**2 * (2 * Gamma / (Gamma - 1)) * (1 - Guess**((Gamma - 1) / Gamma))))**(Gamma / 2)
     return Guess
 
 
@@ -108,7 +108,7 @@ d_reg = d_list-d_port
 # c_star = linearize('Characteristic velocity_opt', P_c)
 # Gamma = linearize('Gamma',P_c)
 # C_f0 = linearize('Thrust coefficient_opt', P_c)
-# C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eta) + P_a / P_c) * eta
+# C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eps) + P_a / P_c) * eps
 # T = C_f * P_c * A_t
 
 # print(P_c, r, m_dot, T, Gamma, C_f0, C_f)
@@ -116,7 +116,7 @@ d_reg = d_list-d_port
 
 # Simulation
 def Simulation(con):
-    d_port,d_out,l_p,alpha,eta,a,n,P_a,Pref,m_p,rho_p = con
+    d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p = con
 
     # Initial conditions
     P_c = 5 * Pref
@@ -135,7 +135,7 @@ def Simulation(con):
     c_star = linearize('Characteristic velocity_opt', P_c)
     Gamma = linearize('Gamma',P_c)
     C_f0 = linearize('Thrust coefficient_opt', P_c)
-    C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eta) + P_a / P_c) * eta
+    C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eps) + P_a / P_c) * eps
     T = C_f * P_c * A_t
 
 
@@ -162,7 +162,7 @@ def Simulation(con):
         c_star = linearize('Characteristic velocity_opt', P_c)
         Gamma = linearize('Gamma',P_c)
         C_f0 = linearize('Thrust coefficient_opt', P_c)
-        C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eta) + P_a / P_c) * eta
+        C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eps) + P_a / P_c) * eps
         T = C_f * P_c * A_t
         # T = m_dot * c_star * linearize('Thrust coefficient_opt', P_c)
 
