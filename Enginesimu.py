@@ -6,6 +6,7 @@ from Read_Data import linearize
 a = 0.005132
 n = 0.222
 Pref = 1*10**6
+P_a = 101325
 m_p = 0.758
 l_p = 0.107
 d_out = 0.0766
@@ -13,6 +14,7 @@ d_port = 0.025
 d_t = 8.37 / 1000
 alpha1 = 15 * np.pi / 180
 alpha2 = 12 * np.pi / 180
+eta = 4
 
 
 # Regression Rate
@@ -93,8 +95,9 @@ r = regrate(P_c, a, n)
 m_dot = r * S * rho_P
 
 c_star = linearize('Characteristic velocity_opt', P_c)
-C_f = linearize('Thrust coefficient_opt', P_c)
-T = C_f * P_c * A_t * DivLoss(alpha2)
+C_f0 = linearize('Thrust coefficient_opt', P_c)
+C_f = C_f0 + DivLoss(alpha2) + (Pratio + P_a / P_c) * eta
+T = C_f * P_c * A_t
 
 print(P_c, r, m_dot, T)
 
