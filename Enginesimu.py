@@ -15,11 +15,13 @@ l_p = 0.107
 d_out = 0.0766
 d_port = 0.025
 d_t = 8.37 / 1000
-alpha = 15 * np.pi / 180
+alphast = 12 * np.pi / 180          # Standard setup
+alphaII = 15 * np.pi / 180          # Configuration II
 eps = 4
 T_a = 273.15 + 15
 
-con = [d_port, d_out, l_p, alpha, eps, a, n, P_a, Pref, m_p, rho_p]
+const = [d_port, d_out, l_p, alphast, eps, a, n, P_a, Pref, m_p, rho_p]
+conII = [d_port, d_out, l_p, alphaII, eps, a, n, P_a, Pref, m_p, rho_p]
 
 
 # Regression Rate
@@ -41,7 +43,7 @@ def Kerckhove(Gamma):
 def FindPratio(Gamma, eps):
     Guess = 0.1
     for _ in range(10):
-        Guess = ( Kerckhove(Gamma)**2 / (eps**2 * (2 * Gamma / (Gamma - 1)) * (1 - Guess**((Gamma - 1) / Gamma))))**(Gamma / 2)
+        Guess = (Kerckhove(Gamma)**2 / (eps**2 * (2 * Gamma / (Gamma - 1)) * (1 - Guess**((Gamma - 1) / Gamma))))**(Gamma / 2)
     return Guess
 
 
@@ -124,7 +126,7 @@ d_reg = d_list-d_port
 def Simulation(con):
     g0 = 9.81
     olde = 0
-    d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,T_a = con
+    d_port, d_out, l_p, alpha, eps, a, n, P_a, Pref, m_p, T_a = con
 
     V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
     rho_p = m_p/V_p
@@ -192,42 +194,64 @@ def Simulation(con):
 
         d_port += 2 * r_rate * dt
 
-
     t_list = np.arange(0, dt*len(p_list), dt)
     I_list = I_list[1:]
-    return np.array(t_list),np.array(p_list),np.array(I_list),np.array(m_list),np.array(T_list),np.array(r_list),np.array(Isp_list)
+    return np.array(t_list), np.array(p_list), np.array(I_list), np.array(m_list), np.array(T_list), np.array(r_list), np.array(Isp_list)
 
-# plt.plot(Simulation(con)[0], Simulation(con)[1], label='Chamber pressure')
-# plt.xlabel("Time [s]")
-# plt.ylabel("Pressure [Pa]")
-# plt.grid()
-# plt.legend()
-# plt.show()
-#
-# plt.plot(Simulation(con)[0], Simulation(con)[3], label='Mass flow')
-# plt.xlabel("Time [s]")
-# plt.ylabel("Mass flow [kg/s]")
-# plt.grid()
-# plt.legend()
-# plt.show()
-#
-# plt.plot(Simulation(con)[0], Simulation(con)[4], label='Thrust')
-# plt.xlabel("Time [s]")
-# plt.ylabel("Thrust [N]")
-# plt.grid()
-# plt.legend()
-# plt.show()
-#
-# plt.plot(Simulation()[0], Simulation()[2], label='Total impulse')
-# plt.xlabel("Time [s]")
-# plt.ylabel("Total impulse [Ns]")
-# plt.grid()
-# plt.legend()
-# plt.show()
-#
-# plt.plot(Simulation()[0], Simulation()[5], label='Regression rate')
-# plt.xlabel("Time [s]")
-# plt.ylabel("Regression rate [m/s]")
-# plt.grid()
-# plt.legend()
-# plt.show()
+
+outputst = Simulation(const)
+outputII = Simulation(conII)
+
+
+plt.subplot(1, 3, 1)
+plt.plot(outputII[0], outputII[1]*10**-6, label='Chamber pressure')
+plt.xlabel("Time [s]")
+plt.ylabel("Chamber pressure [MPa]")
+plt.title("Chamber pressure")
+plt.grid()
+
+plt.subplot(1, 3, 2)
+plt.plot(outputII[0], outputII[3], label='Mass flow')
+plt.xlabel("Time [s]")
+plt.ylabel("Mass flow [kg/s]")
+plt.title("Mass flow")
+plt.grid()
+
+plt.subplot(1, 3, 3)
+plt.plot(outputII[0], outputII[5]*10**3, label='Regression rate')
+plt.xlabel("Time [s]")
+plt.ylabel("Regression rate [mm/s]")
+plt.title("Regression rate")
+plt.grid()
+plt.show()
+
+
+plt.subplot(1, 3, 1)
+plt.plot(outputII[0], outputII[4], label='Config. II')
+plt.plot(outputst[0], outputst[4], label='Standard')
+plt.xlabel("Time [s]")
+plt.ylabel("Thrust [N]")
+plt.title("Thrust")
+plt.grid()
+plt.legend()
+
+plt.subplot(1, 3, 2)
+plt.plot(outputII[0], outputII[6], label='Config. II')
+plt.plot(outputst[0], outputst[6], label='Standard')
+plt.xlabel("Time [s]")
+plt.ylabel("Specific impulse [s]")
+plt.title("Specific impulse")
+plt.grid()
+plt.legend()
+
+plt.subplot(1, 3, 3)
+plt.plot(outputII[0], outputII[2], label='Config. II')
+plt.plot(outputst[0], outputst[2], label='Standard')
+plt.xlabel("Time [s]")
+plt.ylabel("Total impulse [Ns]")
+plt.title("Total impulse")
+plt.grid()
+plt.legend()
+plt.show()
+
+
