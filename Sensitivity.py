@@ -27,35 +27,48 @@ V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
 rho_p = m_p/V_p
 
 
-con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p,T_a]
-dummy = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p,T_a]
+con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,T_a]
+dummy = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,T_a]
 
-Increment = 10
+Increment = -10
 Differences = []
 conSim = Simulation(con)
 
 for i in range(len(con)):
     Difference_list_2 = []
-    connew = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,rho_p,T_a]
+    connew = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,T_a]
     connew[i] = connew[i] + Increment / 100 * connew[i]
     print(connew)
 
     for IO in range(1,7):
         connewSim = Simulation(connew)
-        complen = np.min((len(conSim[IO]), len(connewSim[IO])))-1
-        Difference_list = 100 * (- conSim[IO][:complen] + connewSim[IO][:complen]) / conSim[IO][:complen]
-        Difference_list_2.append([Difference_list[0], Difference_list[-1], np.mean(Difference_list)])
+        # complen = np.min((len(conSim[IO]), len(connewSim[IO])))-1
+        # Difference_list = 100 * (- conSim[IO][:complen] + connewSim[IO][:complen]) / conSim[IO][:complen]
+        Start_element = 100 * (connewSim[IO][0] - conSim[IO][0]) / conSim[IO][0]
+        End_element = 100 * (connewSim[IO][-1] - conSim[IO][-1]) / conSim[IO][-1]
+        Average_element = 100 * (np.mean(connewSim[IO]) - np.mean(conSim[IO])) / np.mean(conSim[IO])
+        Difference_list_2.append([Start_element, End_element, Average_element])
 
     Differences.append(Difference_list_2)
 
 print("\n")
 print(Differences)
 print("\n")
-print("Angle",Differences[3])
+print("d_port",Differences[0])
+print("d_out",Differences[1])
+print("l_p",Differences[2])
+print("alpha",Differences[3])
+print("eps",Differences[4])
+print("a", Differences[5])
+print("n",Differences[6])
+print("P_a",Differences[7])
+print("Pref",Differences[8])
+print("Mass",Differences[9])
+print("T_a",Differences[10])
 print("\n")
 
 Index = int(input("What do you want to plot? Pressure = 1, Total impulse = 2, Mass flow = 3, Thrust = 4, Regression rate = 5, Specific Impulse = 6 "))
-IndexChange = int(input("Choose comparison: d_port = 0, d_out = 1 , l_p = 2 , alpha = 3 , eps = 4 , a = 5 , n = 6 , P_a = 7 , Pref = 8 , m_p = 9 , rho_p = 10 , T_a = 11 "))
+IndexChange = int(input("Choose comparison: d_port = 0, d_out = 1 , l_p = 2 , alpha = 3 , eps = 4 , a = 5 , n = 6 , P_a = 7 , Pref = 8 , m_p = 9 , T_a = 10 "))
 NewValue = float(input("Percentage increase: "))
 
 print(con)
