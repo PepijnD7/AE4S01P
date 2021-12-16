@@ -19,7 +19,7 @@ alpha = 15 * np.pi / 180
 eps = 4
 T_a = 273.15 + 15
 
-con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,T_a]
+con = [d_port, d_out, l_p, alpha, eps, a, n, P_a, Pref, m_p, rho_p]
 
 
 # Regression Rate
@@ -29,11 +29,14 @@ def regrate(P, a, n):
     r = a * (P/Pref)**n
     return r
 
+
 def DivLoss(alpha):
     return (1 + np.cos(alpha)) / 2
 
+
 def Kerckhove(Gamma):
     return np.sqrt(Gamma) * (2 / (1 + Gamma))**(0.5 * (Gamma + 1) / (Gamma - 1))
+
 
 def FindPratio(Gamma, eps):
     Guess = 0.1
@@ -91,6 +94,30 @@ d_reg = d_list-d_port
 # plt.show()
 
 
+# Initial conditions
+# P_c = 5 * Pref
+# S = np.pi * l_p * d_port
+# A_t = (d_t ** 2 * np.pi / 4)
+# a *= (10 ** (-6)) ** n
+#
+# for _ in range(10):
+#     c_star = linearize('Characteristic velocity_opt', P_c)
+#     # print('c_star: ', c_star)
+#
+#     P_c = (c_star * rho_P * a * S / A_t)**(1 / (1-n))
+#     # print('P_c: ', P_c)
+#
+# a = 0.005132
+# r = regrate(P_c, a, n)
+# m_dot = r * S * rho_P
+#
+# c_star = linearize('Characteristic velocity_opt', P_c)
+# Gamma = linearize('Gamma',P_c)
+# C_f0 = linearize('Thrust coefficient_opt', P_c)
+# C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eps) + P_a / P_c) * eps
+# T = C_f * P_c * A_t
+
+# print(P_c, r, m_dot, T, Gamma, C_f0, C_f)
 
 
 # Simulation
@@ -117,9 +144,9 @@ def Simulation(con):
     m_dot = r * S * rho_p
 
     c_star = linearize('Characteristic velocity_opt', P_c)
-    Gamma = linearize('Gamma',P_c)
+    Gamma = linearize('Gamma', P_c)
     C_f0 = linearize('Thrust coefficient_opt', P_c)
-    C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eps) + P_a / P_c) * eps
+    C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) + P_a / P_c) * eps
     T = C_f * P_c * A_t
 
 
@@ -148,9 +175,9 @@ def Simulation(con):
 
         m_dot = rho_p * r_rate * S_burn
         c_star = linearize('Characteristic velocity_opt', P_c)
-        Gamma = linearize('Gamma',P_c)
+        Gamma = linearize('Gamma', P_c)
         C_f0 = linearize('Thrust coefficient_opt', P_c)
-        C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma,eps) + P_a / P_c) * eps
+        C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) + P_a / P_c) * eps
         T = C_f * P_c * A_t
         Isp = T / g0 / m_dot
         # print(Isp - linearize("Specific impulse (by mass)", P_c))
