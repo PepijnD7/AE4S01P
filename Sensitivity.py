@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from Read_Data import linearize
 from Enginesimu import Simulation
+from pandas import DataFrame
 
 # Propellant data
 a = 0.005132
@@ -30,6 +31,13 @@ rho_p = m_p/V_p
 con = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,T_a]
 dummy = [d_port,d_out,l_p,alpha,eps,a,n,P_a,Pref,m_p,T_a]
 
+Diff_P = []
+Diff_I = []
+Diff_mdot = []
+Diff_Ft = []
+Diff_r = []
+Diff_Isp = []
+
 Increment = -10
 Differences = []
 conSim = Simulation(con)
@@ -47,7 +55,7 @@ for i in range(len(con)):
         Start_element = 100 * (connewSim[IO][0] - conSim[IO][0]) / conSim[IO][0]
         End_element = 100 * (connewSim[IO][-1] - conSim[IO][-1]) / conSim[IO][-1]
         Average_element = 100 * (np.mean(connewSim[IO]) - np.mean(conSim[IO])) / np.mean(conSim[IO])
-        Difference_list_2.append([Start_element, End_element, Average_element])
+        Difference_list_2.append([np.round(Start_element,1), np.round(End_element,1), np.round(Average_element,1)])
 
     Differences.append(Difference_list_2)
 
@@ -66,6 +74,19 @@ print("Pref",Differences[8])
 print("Mass",Differences[9])
 print("T_a",Differences[10])
 print("\n")
+
+for i in range(11):
+    Diff_P.append(Differences[i][0])
+    Diff_I.append(Differences[i][1])
+    Diff_mdot.append(Differences[i][2])
+    Diff_Ft.append(Differences[i][3])
+    Diff_r.append(Differences[i][4])
+    Diff_Isp.append(Differences[i][5])
+
+df = DataFrame({'Chamber pressure': Diff_P, 'Total impulse': Diff_I, 'Mass flow': Diff_mdot , 'Thrust': Diff_Ft , 'Regression rate': Diff_r , 'Specific impulse': Diff_Isp})
+print(df)
+
+df.to_excel('SensitivityValues10D.xlsx', sheet_name='Sensitivity', index=True)
 
 Index = int(input("What do you want to plot? Pressure = 1, Total impulse = 2, Mass flow = 3, Thrust = 4, Regression rate = 5, Specific Impulse = 6 "))
 IndexChange = int(input("Choose comparison: d_port = 0, d_out = 1 , l_p = 2 , alpha = 3 , eps = 4 , a = 5 , n = 6 , P_a = 7 , Pref = 8 , m_p = 9 , T_a = 10 "))
