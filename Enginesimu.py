@@ -1,8 +1,12 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from Read_Data import linearize
+from Read_Provided_data import plot_given_data
 
 # TODO: Implement variation of a based on temperature variations
+
+
+given = True
 
 # Propellant data
 a = 0.005132
@@ -20,13 +24,20 @@ alphaII = 15 * np.pi / 180          # Configuration II
 eps = 4
 T_a = 273.15 + 15
 
+# Given data
+l_p_given = 99.60 / 1000
+d_out_given = 76.6 / 1000
+d_port_given = 24.90 / 1000
+m_p_given = 741.8 / 1000
+alpha_given = 12 * np.pi / 180
+rho_p_given = 1786.5
+
 const = [d_port, d_out, l_p, alphast, eps, a, n, P_a, Pref, m_p, rho_p]
 conII = [d_port, d_out, l_p, alphaII, eps, a, n, P_a, Pref, m_p, rho_p]
+const_given = [d_port_given, d_out_given, l_p_given, alpha_given, eps, a, n, P_a, Pref, m_p_given, rho_p_given]
 
 
 # Regression Rate
-
-
 def regrate(P, a, n):
     r = a * (P/Pref)**n
     return r
@@ -200,98 +211,107 @@ def Simulation(con):
 
 t_st, p_st, I_st, m_st, T_st, r_st, Isp_st, pepa_st = Simulation(const)
 t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(conII)
+t_given, p_given, _, _, _, _, _, _ = Simulation(const_given)
 
 
-# Printing output
+if not given:
+    # Printing output
+    print("CHAMBER PRESSURE:\n")
+    print("Max [MPa]:", np.max(p_II)*10**-6)
+    print("Average [MPa]:", np.average(p_II)*10**-6, "\n")
+
+    print("MASS FLOW:\n")
+    print("Max:", np.max(m_II))
+    print("Ave:", np.average(m_II), "\n")
+
+    print("REGRESSION RATE:\n")
+    print("Max [mm/s]:", np.max(r_II)*10**3)
+    print("Ave [mm/s]:", np.average(r_II)*10**3, "\n")
+
+    print("THRUST:\n")
+    print("Max:\n 12 deg:", np.max(T_st), "\n 15 deg:", np.max(T_II), "\n Compare [%]:",
+          (np.max(T_II)-np.max(T_st))/np.max(T_st)*100, "\n")
+
+    print("Ave:\n 12 deg:", np.average(T_st), "\n 15 deg:", np.average(T_II), "\n Compare [%]:",
+          (np.average(T_II)-np.average(T_st))/np.average(T_st)*100, "\n")
+
+    print("SPECIFIC IMPULSE:\n")
+    print("Max:\n 12 deg:", np.max(Isp_st), "\n 15 deg:", np.max(Isp_II), "\n Compare [%]:",
+          (np.max(Isp_II)-np.max(Isp_st))/np.max(Isp_st)*100, "\n")
+
+    print("Ave:\n 12 deg:", np.average(Isp_st), "\n 15 deg:", np.average(Isp_II), "\n Compare [%]:",
+          (np.average(Isp_II)-np.average(Isp_st))/np.average(Isp_st)*100, "\n")
+
+    print("TOTAL IMPULSE:\n")
+    print("12 deg:", np.max(I_st), "\n15 deg:", np.max(I_II), "\n Compare [%]:",
+          (np.max(I_II)-np.max(I_st))/np.max(I_st)*100, "\n")
 
 
-print("CHAMBER PRESSURE:\n")
-print("Max [MPa]:", np.max(p_II)*10**-6)
-print("Average [MPa]:", np.average(p_II)*10**-6, "\n")
+    # Plotting outputs
+    plt.subplot(1, 3, 1)
+    plt.plot(t_st, p_II*10**-6, label='Chamber pressure')
+    plt.xlabel("Time [s]", fontsize=13)
+    plt.ylabel("Chamber pressure [MPa]", fontsize=13)
+    plt.title("Chamber pressure", fontsize=13)
+    plt.grid()
 
-print("MASS FLOW:\n")
-print("Max:", np.max(m_II))
-print("Ave:", np.average(m_II), "\n")
+    plt.subplot(1, 3, 2)
+    plt.plot(t_II, m_II, label='Mass flow')
+    plt.xlabel("Time [s]", fontsize=13)
+    plt.ylabel("Mass flow [kg/s]", fontsize=13)
+    plt.title("Mass flow", fontsize=13)
+    plt.grid()
 
-print("REGRESSION RATE:\n")
-print("Max [mm/s]:", np.max(r_II)*10**3)
-print("Ave [mm/s]:", np.average(r_II)*10**3, "\n")
-
-print("THRUST:\n")
-print("Max:\n 12 deg:", np.max(T_st), "\n 15 deg:", np.max(T_II), "\n Compare [%]:",
-      (np.max(T_II)-np.max(T_st))/np.max(T_st)*100, "\n")
-
-print("Ave:\n 12 deg:", np.average(T_st), "\n 15 deg:", np.average(T_II), "\n Compare [%]:",
-      (np.average(T_II)-np.average(T_st))/np.average(T_st)*100, "\n")
-
-print("SPECIFIC IMPULSE:\n")
-print("Max:\n 12 deg:", np.max(Isp_st), "\n 15 deg:", np.max(Isp_II), "\n Compare [%]:",
-      (np.max(Isp_II)-np.max(Isp_st))/np.max(Isp_st)*100, "\n")
-
-print("Ave:\n 12 deg:", np.average(Isp_st), "\n 15 deg:", np.average(Isp_II), "\n Compare [%]:",
-      (np.average(Isp_II)-np.average(Isp_st))/np.average(Isp_st)*100, "\n")
-
-print("TOTAL IMPULSE:\n")
-print("12 deg:", np.max(I_st), "\n15 deg:", np.max(I_II), "\n Compare [%]:",
-      (np.max(I_II)-np.max(I_st))/np.max(I_st)*100, "\n")
+    plt.subplot(1, 3, 3)
+    plt.plot(t_II, r_II*10**3, label='Regression rate')
+    plt.xlabel("Time [s]", fontsize=13)
+    plt.ylabel("Regression rate [mm/s]", fontsize=13)
+    plt.title("Regression rate", fontsize=13)
+    plt.grid()
+    plt.show()
 
 
-# Plotting outputs
-plt.subplot(1, 3, 1)
-plt.plot(t_st, p_II*10**-6, label='Chamber pressure')
-plt.xlabel("Time [s]", fontsize=13)
-plt.ylabel("Chamber pressure [MPa]", fontsize=13)
-plt.title("Chamber pressure", fontsize=13)
-plt.grid()
+    plt.subplot(1, 3, 1)
+    plt.plot(t_II, T_II, label='Config. II')
+    plt.plot(t_st, T_st, label='Standard')
+    plt.xlabel("Time [s]", fontsize=13)
+    plt.ylabel("Thrust [N]", fontsize=13)
+    plt.title("Thrust", fontsize=13)
+    plt.grid()
+    plt.legend()
 
-plt.subplot(1, 3, 2)
-plt.plot(t_II, m_II, label='Mass flow')
-plt.xlabel("Time [s]", fontsize=13)
-plt.ylabel("Mass flow [kg/s]", fontsize=13)
-plt.title("Mass flow", fontsize=13)
-plt.grid()
+    plt.subplot(1, 3, 2)
+    plt.plot(t_II, Isp_II, label='Config. II')
+    plt.plot(t_st, Isp_st, label='Standard')
+    plt.xlabel("Time [s]", fontsize=13)
+    plt.ylabel("Specific impulse [s]", fontsize=13)
+    plt.title("Specific impulse", fontsize=13)
+    plt.grid()
+    plt.legend()
 
-plt.subplot(1, 3, 3)
-plt.plot(t_II, r_II*10**3, label='Regression rate')
-plt.xlabel("Time [s]", fontsize=13)
-plt.ylabel("Regression rate [mm/s]", fontsize=13)
-plt.title("Regression rate", fontsize=13)
-plt.grid()
-plt.show()
+    plt.subplot(1, 3, 3)
+    plt.plot(t_II, I_II, label='Config. II')
+    plt.plot(t_st, I_st, label='Standard')
+    plt.xlabel("Time [s]", fontsize=13)
+    plt.ylabel("Total impulse [Ns]", fontsize=13)
+    plt.title("Total impulse", fontsize=13)
+    plt.grid()
+    plt.legend()
+    plt.show()
 
-
-plt.subplot(1, 3, 1)
-plt.plot(t_II, T_II, label='Config. II')
-plt.plot(t_st, T_st, label='Standard')
-plt.xlabel("Time [s]", fontsize=13)
-plt.ylabel("Thrust [N]", fontsize=13)
-plt.title("Thrust", fontsize=13)
-plt.grid()
-plt.legend()
-
-plt.subplot(1, 3, 2)
-plt.plot(t_II, Isp_II, label='Config. II')
-plt.plot(t_st, Isp_st, label='Standard')
-plt.xlabel("Time [s]", fontsize=13)
-plt.ylabel("Specific impulse [s]", fontsize=13)
-plt.title("Specific impulse", fontsize=13)
-plt.grid()
-plt.legend()
-
-plt.subplot(1, 3, 3)
-plt.plot(t_II, I_II, label='Config. II')
-plt.plot(t_st, I_st, label='Standard')
-plt.xlabel("Time [s]", fontsize=13)
-plt.ylabel("Total impulse [Ns]", fontsize=13)
-plt.title("Total impulse", fontsize=13)
-plt.grid()
-plt.legend()
-plt.show()
-
-plt.plot(t_II, pepa_II, label='Config. II')
-plt.xlabel("Time [s]", fontsize=13)
-plt.ylabel(r"$p_e/p_a$", fontsize=13)
-plt.grid()
-plt.show()
+    plt.plot(t_II, pepa_II, label='Config. II')
+    plt.xlabel("Time [s]", fontsize=13)
+    plt.ylabel(r"$p_e/p_a$", fontsize=13)
+    plt.grid()
+    plt.show()
 
 
+if given:
+    plt.plot(t_given, p_given * 10 ** -6, label='Chamber pressure')
+    plt.xlabel("Time [s]", fontsize=13)
+    plt.ylabel("Chamber pressure [MPa]", fontsize=13)
+    plt.title("Chamber pressure", fontsize=13)
+    plt.grid()
+    plt.show()
+
+    plot_given_data([t_given, p_given])
