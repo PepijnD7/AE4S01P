@@ -160,6 +160,7 @@ def Simulation(con):
     T_list = []
     r_list = []
     I_list = [0]
+    pepa_list = []
 
     while d_port <= d_out:
         S_burn = d_port * np.pi * l_p
@@ -184,6 +185,7 @@ def Simulation(con):
         m_list.append(m_dot)
         Isp_list.append(Isp)
         p_list.append(P_c)
+        pepa_list.append(P_c*FindPratio(Gamma, eps)/P_a)
         T_list.append(T)
         r_list.append(r_rate)
         prev_I = I_list[-1]
@@ -192,11 +194,12 @@ def Simulation(con):
 
     t_list = np.arange(0, dt*len(p_list), dt)
     I_list = I_list[1:]
-    return np.array(t_list), np.array(p_list), np.array(I_list), np.array(m_list), np.array(T_list), np.array(r_list), np.array(Isp_list)
+
+    return np.array(t_list), np.array(p_list), np.array(I_list), np.array(m_list), np.array(T_list), np.array(r_list), np.array(Isp_list), np.array(pepa_list)
 
 
-t_st, p_st, I_st, m_st, T_st, r_st, Isp_st = Simulation(const)
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II = Simulation(conII)
+t_st, p_st, I_st, m_st, T_st, r_st, Isp_st, pepa_st = Simulation(const)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(conII)
 
 
 # Printing output
@@ -283,6 +286,12 @@ plt.ylabel("Total impulse [Ns]", fontsize=13)
 plt.title("Total impulse", fontsize=13)
 plt.grid()
 plt.legend()
+plt.show()
+
+plt.plot(t_II, pepa_II, label='Config. II')
+plt.xlabel("Time [s]", fontsize=13)
+plt.ylabel(r"$p_e/p_a$", fontsize=13)
+plt.grid()
 plt.show()
 
 
