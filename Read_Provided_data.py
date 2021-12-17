@@ -50,16 +50,18 @@ def plot_given_data(our_data=None):
     plt.plot(data[params[1]][r[0]:r[1]], data[params[0]][r[0]:r[1]])
     plt.xlabel(params[1])
     plt.ylabel(params[0])
+    plt.grid()
     plt.show()
 
     if our_data:
         t, p = our_data
 
-        plt.plot(t, p, label='Our data')
-        plt.plot(data[params[1]][r[0]:r[1]], data[params[0]][r[0]:r[1]], label='Given data')
+        plt.plot(t, p, label='Simulation')
+        plt.plot(data[params[1]][r[0]:r[1]], data[params[0]][r[0]:r[1]], label='Test Data')
         plt.xlabel(params[1])
         plt.ylabel(params[0])
         plt.legend()
+        plt.grid()
         plt.show()
 
 

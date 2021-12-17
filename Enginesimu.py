@@ -6,7 +6,8 @@ from Read_Provided_data import plot_given_data
 # TODO: Implement variation of a based on temperature variations
 
 
-given = True
+# set given to True for validation
+given = False
 
 # Propellant data
 a = 0.005132
@@ -79,10 +80,12 @@ def burnsurf(r, l, d_i, d_o, t):
 
 # Simulation
 
-# plt.plot(P_list, r_list*10**3)
+# plt.subplot(1, 3, 1)
+# plt.plot(P_list, r_list*10**3, label='Regression rate')
 # plt.xlabel("Chamber Pressure (Pa)")
 # plt.ylabel("Regression rate (mm/s)")
 # plt.grid()
+# plt.legend()
 # plt.show()
 
 r_c = r_list[P_list == 100*10**6]
@@ -91,19 +94,22 @@ d_list, S_list, V_list, m_list = burnsurf(r_c, l_p, d_port, d_out, t_list)
 d_reg = d_list-d_port
 
 # fig, ax1 = plt.subplots()
-#
-# ax1.set_xlabel("Distance regressed (mm)")
-# ax1.set_ylabel("Propellant mass (kg)")
-# ax1.grid()
-# ax1.plot(d_reg*10**3, m_list, color='r', label='Propellant mass')
-#
+# plt.subplot(1, 3, 2)
+# plt.xlabel("Distance regressed (mm)")
+# plt.ylabel("Propellant mass (kg)")
+# plt.grid()
+# plt.plot(d_reg*10**3, m_list, label='Propellant mass')
+# plt.legend()
+
 # ax2 = ax1.twinx()
-#
-# ax2.set_xlabel("Distance regressed (mm)")
-# ax2.set_ylabel("Burn surface (m^2)")
-# ax2.plot(d_reg*10**3, S_list, color='b', label='Burn Surface')
-# fig.tight_layout()
-# fig.legend()
+
+# plt.subplot(1, 3, 3)
+# plt.xlabel("Distance regressed (mm)")
+# plt.ylabel("Burn surface (m^2)")
+# plt.plot(d_reg*10**3, S_list, label='Burn surface')
+# # fig.tight_layout()
+# plt.legend()
+# plt.grid()
 # plt.show()
 
 
