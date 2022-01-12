@@ -41,7 +41,7 @@ def calibration():
 
     for param, max_diff, ranges, val in zip(param_list, max_diffs, ranges_list, values):
         # 'filter' the data
-        cal_t    = cal_original[param][0][::res]
+        # cal_t  = cal_original[param][0][::res]
         cal_data = cal_original[param][1][::res]
 
         diff = abs(cal_data[:-delta] - cal_data[delta:])
@@ -158,7 +158,7 @@ def get_properties(filename):
     start_value = np.average(data['LC'][:100]) + 5
     ignit_index = np.where(data['LC'] > 10)[0][0]
     ignition = data['LC_time'][ignit_index]
-    start = data['LC_time'][np.where(data['LC'][ignit_index + 500:] > 10)[0][0] + ignit_index + 300]
+    start = data['LC_time'][np.where(data['LC'][ignit_index + 500:] > start_value)[0][0] + ignit_index + 350]
 
     max_index = np.where(data['LC'] == np.max(data['LC']))[0][0]
 
