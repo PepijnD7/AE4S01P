@@ -7,7 +7,7 @@ from Read_Provided_data import plot_given_data
 
 
 # set given to True for validation
-given = True
+given = False
 
 # Propellant data
 n = 0.222
