@@ -129,6 +129,7 @@ def Simulation(con, density=0):
 
         d_port+= r*dt
         P_c += dpdt*dt
+        print(P_c)
 
     dt=0.1
     # for _ in range(10):
@@ -146,11 +147,11 @@ def Simulation(con, density=0):
     #
     # C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) + P_a / P_c) * eps
 
-    o = 0
+    print("NEW PC:",P_c)
     # BURN LOOP
 
     while d_port <= d_out:
-        o += 1
+        print(P_c)
         S_burn = d_port * np.pi * l_p
         P_c = (c_star * (rho_p-rho_c) * a * S_burn / A_t) ** (1 / (1 - n))
         T_c = linearize("Temperature", P_c)
