@@ -125,6 +125,7 @@ def Simulation(con):
 
         rho_c = P_c/R/T_c
         r = regrate(P_c, a, n)
+        print(c_star,T_c,R,C_f0,rho_c,Gamma,r,A_t,P_c)
         m_in = r * S
         m_out = A_t * P_c / c_star
         accumdiff = m_out - m_in*(rho_p - rho_c)
