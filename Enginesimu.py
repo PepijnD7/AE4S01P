@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from Read_Data import linearize
+from Read_Data import linearize, linearizeAccumulate
 from Read_Provided_data import plot_given_data
 
 # TODO: Implement variation of a based on temperature variations
@@ -50,29 +50,6 @@ def DivLoss(alpha):
 def Kerckhove(Gamma):
     return np.sqrt(Gamma) * (2 / (1 + Gamma))**(0.5 * (Gamma + 1) / (Gamma - 1))
 
-def linearizeAccumulate(param_str, p):
-    data_RPA = {'Pressure': [0.1 , 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7 , 0.8 , 0.9 , 1],
-                'Gas Constant' : [217.5 , 214.9 , 213.5 , 212.5 , 211.7 , 211.2 , 210.7 , 210.3 , 209.9 , 209.6],
-                'Temperature': [1451.92 , 1491.25 , 1512.33 , 1528.3707 , 1539.5906 , 1548.4226 , 1555.6289 , 1561.6622 , 1566.8127 , 1571.2774],
-                'Gamma': [1.1767 , 1.1658 , 1.1598 , 1.1558 , 1.1529 , 1.1506 , 1.1488 , 1.1472 , 1.1460 , 1.1449],
-                'Characteristic velocity_opt': [892.79 , 898.35 , 901.27 , 903.17 , 904.53 , 905.56 , 906.39 , 907.06 , 907.62 , 908.1],
-                'Thrust coefficient_opt':[1.4237 , 1.4241 , 1.4244 , 1.4246 , 1.4246 , 1.4247 , 1.4248 , 1.4248 , 1.4248 , 1.4248]
-                }
-
-    p /= 1000000
-    p_lst = data_RPA['Pressure']
-
-    i = 0
-    while p_lst[i] < p:
-        i += 1
-
-    dif = p - p_lst[i-1]
-    step = p_lst[i] - p_lst[i-1]
-
-    smaller = data_RPA[param_str][i-1]
-    bigger  = data_RPA[param_str][i]
-
-    return smaller + (bigger - smaller) * (dif / step)
 
 
 def FindPratio(Gamma, eps):
@@ -87,13 +64,13 @@ def Simulation(con):
     g0 = 9.81
     d_port, d_out, l_p, alpha, eps, a, n, P_a, m_p, rho_p = con
     a = (1.55 * 10 ** (-5) * (T_a - 273.15) + 4.47 * 10 ** (-3))* (10 ** (-6)) ** n
-    # INITIAL CONDITIONS and CHAMBER FILL:
 
+    # INITIAL CONDITIONS and CHAMBER FILL:
     # Parameters that do not change:
     A_t = (d_t ** 2 * np.pi / 4)
     V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
     rho_p = m_p/V_p
-    dt = 0.0001
+    dt = 0.001
 
     # Parameters that will change:
     V_c = l_p * (d_port/2)**2 * np.pi
@@ -107,13 +84,10 @@ def Simulation(con):
     r_list = []
     I_list = [0]
     pepa_list = []
-
-    m_out = 0
-    m_in = regrate(P_c, a, n) * rho_p * S
+    t_list = [0]
     accumdiff = 1
 
     while np.abs(accumdiff)>0.01:
-        print("in sim pc1: ",P_c)
         S = np.pi * l_p * d_port
         Gamma = linearizeAccumulate('Gamma', P_c)
         vdk = Kerckhove(Gamma)
@@ -121,18 +95,16 @@ def Simulation(con):
         C_f0 = linearizeAccumulate('Thrust coefficient_opt', P_c)
         T_c = linearizeAccumulate("Temperature", P_c)
         R = linearizeAccumulate('Gas Constant', P_c)
-        print("in sim pc2: ",P_c)
 
         rho_c = P_c/R/T_c
         r = regrate(P_c, a, n)
-        print(c_star,T_c,R,C_f0,rho_c,Gamma,r,A_t,P_c)
-        m_in = r * S
+        m_in = r * S * rho_p
         m_out = A_t * P_c / c_star
-        accumdiff = m_out - m_in*(rho_p - rho_c)
-        print("ACUUUUUUM",np.abs(accumdiff), m_in*(rho_p - rho_c), m_out)
-        dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * m_in - m_out)  # Add gas density
+        accumdiff = m_in - m_out
+        print("Mass accumulation", accumdiff)
+        dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * S * r - c_star * A_t * P_c)  # Add gas density
         C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
-        T = C_f * P_c * A_t
+        T = np.max((C_f * P_c * A_t, 0))
         Isp = T / g0 / m_out
         m_list.append(m_out)
         Isp_list.append(Isp)
@@ -142,11 +114,12 @@ def Simulation(con):
         r_list.append(r)
         prev_I = I_list[-1]
         I_list.append(prev_I + (T * dt))
+        t_list.append(t_list[-1]+dt)
 
         d_port+= r*dt
         P_c += dpdt*dt
-        print("DPDT",dpdt)
 
+    dt=0.1
     # for _ in range(10):
     #     c_star = linearize('Characteristic velocity_opt', P_c)
     #     P_c = (c_star * rho_p * a * S / A_t)**(1 / (1-n))
@@ -161,12 +134,12 @@ def Simulation(con):
     # rho_c = P_c / R / T_c
     #
     # C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) + P_a / P_c) * eps
+
     o = 0
     # BURN LOOP
 
     while d_port <= d_out:
         o += 1
-        print("Running", o, P_c)
         S_burn = d_port * np.pi * l_p
         P_c = (c_star * (rho_p-rho_c) * a * S_burn / A_t) ** (1 / (1 - n))
         T_c = linearize("Temperature", P_c)
@@ -189,10 +162,11 @@ def Simulation(con):
         r_list.append(r_rate)
         prev_I = I_list[-1]
         I_list.append(prev_I + (T * dt))
-        d_port += 2 * r_rate * dt
+        t_list.append(t_list[-1]+dt)
 
-    t_list = np.arange(0, dt*len(p_list), dt)
+        d_port += 2 * r_rate * dt
     I_list = I_list[1:]
+    t_list = t_list[1:]
 
     return np.array(t_list), np.array(p_list), np.array(I_list), np.array(m_list), np.array(T_list), \
            np.array(r_list), np.array(Isp_list), np.array(pepa_list)
