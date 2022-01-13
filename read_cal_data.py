@@ -41,7 +41,7 @@ def calibration():
 
     for param, max_diff, ranges, val in zip(param_list, max_diffs, ranges_list, values):
         # 'filter' the data
-        cal_t    = cal_original[param][0][::res]
+        # cal_t  = cal_original[param][0][::res]
         cal_data = cal_original[param][1][::res]
 
         diff = abs(cal_data[:-delta] - cal_data[delta:])
@@ -131,21 +131,63 @@ def save_data(filename_and_begin_list):
 
 def read_data(filename):
     with open('Filtered_Data.txt') as file:
-        start = np.infty
+        first_line = np.infty
         data_dict = {}
 
         for i, line in enumerate(file):
             if filename in line.strip():
-                start = i + 1
+                first_line = i + 1
 
-            if i >= start + 6:
+            if i >= first_line + 6:
                 break
 
-            if i >= start:
+            if i >= first_line:
                 param, data = line.strip().split(': ')
                 data_dict[param] = np.array(data.split(', '), dtype=float)
 
     return data_dict
+
+
+def get_properties(filename):
+    data = read_data(filename)
+    par_list = [['IM_time', 'IM'], ['LC_time', 'LC'], ['PS_time', 'PS']]
+    par_dict = {'IM': 'Impulse', 'LC': 'Thrust', 'PS': 'Chamber Pressure'}
+    prop_dict = {}
+
+    # find begin and end of the burn
+    start_value = np.average(data['LC'][:100]) + 5
+    ignit_index = np.where(data['LC'] > 10)[0][0]
+    ignition = data['LC_time'][ignit_index]
+    start = data['LC_time'][np.where(data['LC'][ignit_index + 500:] > start_value)[0][0] + ignit_index + 350]
+
+    max_index = np.where(data['LC'] == np.max(data['LC']))[0][0]
+
+    end_value = np.average(data['LC'][-100:]) + 5
+    end_index = np.where(data['LC'][max_index:] < end_value)[0][0] + max_index
+    end = data['LC_time'][end_index]
+
+    prop_dict['Thrust time']   = (end - start).round(3)
+    prop_dict['Ignition time'] = (start - ignition).round(3)
+
+    # analyse data
+    for [t, y] in par_list:
+        # plot data with begin and end indicated as vertical line
+        plt.plot(data[t], data[y])
+        plt.vlines([ignition, start, end], np.min(data[y]), np.max(data[y]), colors='r')
+        plt.show()
+
+        # firing properties
+        if y == 'IM':
+            prop_dict['Total ' + par_dict[y]] = data[y][np.where(data[t] - end == np.min(np.abs(data[t] - end)))[0][0]]
+
+        else:
+            closest_start = np.where((data[t] - start).round(4) == np.min(np.abs(data[t] - start)).round(4))[0][0]
+            closest_end   = np.where((data[t] - end).round(4)   == np.min(np.abs(data[t] - end)).round(4))[0][0]
+
+            prop_dict['Max. '    + par_dict[y]] = np.max(data[y]).round(1)
+            prop_dict['Average ' + par_dict[y]] = np.average(data[y][closest_start:closest_end]).round(1)
+
+    return prop_dict
 
 
 if __name__ == '__main__':
@@ -157,20 +199,4 @@ if __name__ == '__main__':
     #            ['test_data_2021/ReferenceMotor_211221_114135.tdms', 222],
     #            ['test_data_2021/ReferenceMotor_211222_092347.tdms', 65]])
 
-    data_ = read_data('Config2_211221_132537')
-    par_list = [['IM_time', 'IM'], ['LC_time', 'LC'], ['PS_time', 'PS']]
-
-    start_index = np.where(data_['LC'] > 10)[0][0]
-    start = data_['LC_time'][start_index]
-
-    end_value = np.average(data_['LC'][-100:]) + 5
-    end_index = np.where(data_['LC'][start_index + 5000:] < end_value)[0][0] + start_index + 5000
-    end = data_['LC_time'][end_index]
-
-    for [t, y] in par_list:
-        data__t = data_[t]
-        data__y = data_[y]
-
-        plt.plot(data__t, data__y)
-        plt.vlines([start, end], np.min(data__y), np.max(data__y), colors='r')
-        plt.show()
+    print(get_properties('Config2_211221_132537'))
