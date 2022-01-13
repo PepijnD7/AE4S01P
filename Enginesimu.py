@@ -63,9 +63,7 @@ def linearizeAccumulate(param_str, p):
     p_lst = data_RPA['Pressure']
 
     i = 0
-    print("not:",p)
     while p_lst[i] < p:
-        print("in while loop plst,pc,i: ",p_lst[i],p,i)
         i += 1
 
     dif = p - p_lst[i-1]
@@ -112,8 +110,9 @@ def Simulation(con):
 
     m_out = 0
     m_in = regrate(P_c, a, n) * rho_p * S
+    accumdiff = 1
 
-    while dpdt>0.01:
+    while np.abs(accumdiff)>0.01:
         print("in sim pc1: ",P_c)
         S = np.pi * l_p * d_port
         Gamma = linearizeAccumulate('Gamma', P_c)
@@ -127,7 +126,9 @@ def Simulation(con):
         rho_c = P_c/R/T_c
         r = regrate(P_c, a, n)
         m_in = r * S
-        m_out = c_star * A_t * P_c
+        m_out = A_t * P_c / c_star
+        accumdiff = m_out - m_in*(rho_p - rho_c)
+        print("ACUUUUUUM",np.abs(accumdiff), m_in*(rho_p - rho_c), m_out)
         dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * m_in - m_out)  # Add gas density
         C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
         T = C_f * P_c * A_t
@@ -159,10 +160,12 @@ def Simulation(con):
     # rho_c = P_c / R / T_c
     #
     # C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) + P_a / P_c) * eps
-
+    o = 0
     # BURN LOOP
 
     while d_port <= d_out:
+        o += 1
+        print("Running", o, P_c)
         S_burn = d_port * np.pi * l_p
         P_c = (c_star * (rho_p-rho_c) * a * S_burn / A_t) ** (1 / (1 - n))
         T_c = linearize("Temperature", P_c)
