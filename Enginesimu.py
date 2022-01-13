@@ -61,9 +61,8 @@ def FindPratio(Gamma, eps):
 # Simulation
 def Simulation(con):
     g0 = 9.81
-    olde = 0
     d_port, d_out, l_p, alpha, eps, a, n, P_a, m_p, rho_p = con
-
+    a = (1.55 * 10 ** (-5) * (T_a - 273.15) + 4.47 * 10 ** (-3))* (10 ** (-6)) ** n
     # INITIAL CONDITIONS and CHAMBER FILL:
 
     # Parameters that do not change:
@@ -74,8 +73,9 @@ def Simulation(con):
 
     # Parameters that will change:
     V_c = l_p * (d_port/2)**2 * np.pi
-    P_c = P_a
+    P_c = 5*10**6
     S = np.pi * l_p * d_port
+    dpdt = 1
     m_list = []
     Isp_list = []
     p_list = []
@@ -87,52 +87,56 @@ def Simulation(con):
     m_out = 0
     m_in = regrate(P_c, a, n) * rho_p * S
 
-    while m_in-m_out>0.1:
-        S = np.pi * l_p * d_port
-        Gamma = linearize('Gamma', P_c)
-        vdk = Kerckhove(Gamma)
-        c_star = linearize('Characteristic velocity_opt', P_c)
-        C_f0 = linearize('Thrust coefficient_opt', P_c)
-
-        r = regrate(P_c, a, n)
-        m_in = r* rho_p * S
-        m_out = c_star * A_t * P_c
-        dpcdt = vdk**2/V_c * c_star**2 * (rho_p) * m_in - m_out  # Add gas density
-        C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
-        T = C_f * P_c * A_t
-        Isp = T / g0 / m_out
-        m_list.append(m_out)
-        Isp_list.append(Isp)
-        p_list.append(P_c)
-        pepa_list.append(P_c * FindPratio(Gamma, eps) / P_a)
-        T_list.append(T)
-        r_list.append(r)
-        prev_I = I_list[-1]
-        I_list.append(prev_I + (T * dt))
-
-        d_port+= r*dt
-        P_c += dpcdt*dt
-
-    # for _ in range(10):
+    # while dpdt>0.01:
+    #     S = np.pi * l_p * d_port
+    #     Gamma = linearize('Gamma', P_c)
+    #     vdk = Kerckhove(Gamma)
     #     c_star = linearize('Characteristic velocity_opt', P_c)
-    #     P_c = (c_star * rho_p * a * S / A_t)**(1 / (1-n))
-    # r = regrate(P_c, a, n)
-    # m_dot = r * S * rho_p
+    #     C_f0 = linearize('Thrust coefficient_opt', P_c)
+    #     T_c = linearize("Temperature", P_c)
+    #     R = linearize('Gas constant', P_c)*1000
     #
+    #     rho_c = P_c/R/T_c
+    #     r = regrate(P_c, a, n)
+    #     m_in = r* rho_p * S
+    #     m_out = c_star * A_t * P_c
+    #     dpcdt = vdk**2/V_c * c_star**2 * (rho_p - rho_c) * m_in - m_out  # Add gas density
+    #     C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
+    #     T = C_f * P_c * A_t
+    #     Isp = T / g0 / m_out
+    #     m_list.append(m_out)
+    #     Isp_list.append(Isp)
+    #     p_list.append(P_c)
+    #     pepa_list.append(P_c * FindPratio(Gamma, eps) / P_a)
+    #     T_list.append(T)
+    #     r_list.append(r)
+    #     prev_I = I_list[-1]
+    #     I_list.append(prev_I + (T * dt))
+    #
+    #     d_port+= r*dt
+    #     P_c += dpcdt*dt
+
+    for _ in range(10):
+        c_star = linearize('Characteristic velocity_opt', P_c)
+        P_c = (c_star * rho_p * a * S / A_t)**(1 / (1-n))
+    r = regrate(P_c, a, n)
+    m_dot = r * S * rho_p
+
     c_star = linearize('Characteristic velocity_opt', P_c)
     Gamma = linearize('Gamma', P_c)
     C_f0 = linearize('Thrust coefficient_opt', P_c)
+    T_c = linearize("Temperature", P_c)
+    R = linearize('Gas constant', P_c) * 1000
+    rho_c = P_c / R / T_c
+
     C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) + P_a / P_c) * eps
 
     # BURN LOOP
 
     while d_port <= d_out:
         S_burn = d_port * np.pi * l_p
-        P_c = (c_star * rho_p * a * S_burn / A_t) ** (1 / (1 - n))
+        P_c = (c_star * (rho_p-rho_c) * a * S_burn / A_t) ** (1 / (1 - n))
         T_c = linearize("Temperature", P_c)
-        a *= np.exp(olde * (T_a - 273.15))
-        # a = (1.55*10**(-5) * (T_a - 273.15) + 4.47*10**(-3))
-        # print(T_c,a)
         r_rate = regrate(P_c, a, n)
 
         m_dot = rho_p * r_rate * S_burn
@@ -198,7 +202,6 @@ if not given:
     print("12 deg:", np.max(I_st), "\n15 deg:", np.max(I_II), "\n Compare [%]:",
           (np.max(I_II)-np.max(I_st))/np.max(I_st)*100, "\n")
 
-
     # Plotting outputs
     plt.subplot(1, 3, 1)
     plt.plot(t_st, p_II*10**-6, label='Chamber pressure')
@@ -221,7 +224,6 @@ if not given:
     plt.title("Regression rate", fontsize=13)
     plt.grid()
     plt.show()
-
 
     plt.subplot(1, 3, 1)
     plt.plot(t_II, T_II, label='Config. II')
@@ -251,11 +253,11 @@ if not given:
     plt.legend()
     plt.show()
 
-    plt.plot(t_II, pepa_II, label='Config. II')
-    plt.xlabel("Time [s]", fontsize=13)
-    plt.ylabel(r"$p_e/p_a$", fontsize=13)
-    plt.grid()
-    plt.show()
+    # plt.plot(t_II, pepa_II, label='Config. II')
+    # plt.xlabel("Time [s]", fontsize=13)
+    # plt.ylabel(r"$p_e/p_a$", fontsize=13)
+    # plt.grid()
+    # plt.show()
 
 
 if given:
