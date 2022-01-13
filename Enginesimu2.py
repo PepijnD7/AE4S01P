@@ -70,7 +70,7 @@ def Simulation(con):
     A_t = (d_t ** 2 * np.pi / 4)
     V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
     rho_p = m_p/V_p
-    dt = 0.001
+    dt = 0.005
 
     # Parameters that will change:
     V_c = l_p * (d_port/2)**2 * np.pi
@@ -130,6 +130,7 @@ def Simulation(con):
         P_c += dpdt*dt
         print("Pc",P_c)
         print("Diameter left",d_out - d_port)
+        print("r",r)
         print("dpdt",dpdt)
         print("\n")
 
