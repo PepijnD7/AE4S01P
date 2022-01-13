@@ -93,7 +93,7 @@ def Simulation(con):
     A_t = (d_t ** 2 * np.pi / 4)
     V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
     rho_p = m_p/V_p
-    dt = 0.005
+    dt = 0.0001
 
     # Parameters that will change:
     V_c = l_p * (d_port/2)**2 * np.pi
@@ -112,61 +112,61 @@ def Simulation(con):
     m_in = regrate(P_c, a, n) * rho_p * S
     accumdiff = 1
 
-    # while np.abs(accumdiff)>0.01:
-    # while np.abs(accumdiff)>0.01:
-    #     print("in sim pc1: ",P_c)
-    #     S = np.pi * l_p * d_port
-    #     Gamma = linearizeAccumulate('Gamma', P_c)
-    #     vdk = Kerckhove(Gamma)
-    #     c_star = linearizeAccumulate('Characteristic velocity_opt', P_c)
-    #     C_f0 = linearizeAccumulate('Thrust coefficient_opt', P_c)
-    #     T_c = linearizeAccumulate("Temperature", P_c)
-    #     R = linearizeAccumulate('Gas Constant', P_c)
-    #     print("in sim pc2: ",P_c)
+    while np.abs(accumdiff)>0.01:
+        print("in sim pc1: ",P_c)
+        S = np.pi * l_p * d_port
+        Gamma = linearizeAccumulate('Gamma', P_c)
+        vdk = Kerckhove(Gamma)
+        c_star = linearizeAccumulate('Characteristic velocity_opt', P_c)
+        C_f0 = linearizeAccumulate('Thrust coefficient_opt', P_c)
+        T_c = linearizeAccumulate("Temperature", P_c)
+        R = linearizeAccumulate('Gas Constant', P_c)
+        print("in sim pc2: ",P_c)
+
+        rho_c = P_c/R/T_c
+        r = regrate(P_c, a, n)
+        print(c_star,T_c,R,C_f0,rho_c,Gamma,r,A_t,P_c)
+        m_in = r * S
+        m_out = A_t * P_c / c_star
+        accumdiff = m_out - m_in*(rho_p - rho_c)
+        print("ACUUUUUUM",np.abs(accumdiff), m_in*(rho_p - rho_c), m_out)
+        dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * m_in - m_out)  # Add gas density
+        C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
+        T = C_f * P_c * A_t
+        Isp = T / g0 / m_out
+        m_list.append(m_out)
+        Isp_list.append(Isp)
+        p_list.append(P_c)
+        pepa_list.append(P_c * FindPratio(Gamma, eps) / P_a)
+        T_list.append(T)
+        r_list.append(r)
+        prev_I = I_list[-1]
+        I_list.append(prev_I + (T * dt))
+
+        d_port+= r*dt
+        P_c += dpdt*dt
+        print("DPDT",dpdt)
+
+    # for _ in range(10):
+    #     c_star = linearize('Characteristic velocity_opt', P_c)
+    #     P_c = (c_star * rho_p * a * S / A_t)**(1 / (1-n))
+    # r = regrate(P_c, a, n)
+    # m_dot = r * S * rho_p
     #
-    #     rho_c = P_c/R/T_c
-    #     r = regrate(P_c, a, n)
-    #     m_in = r * S
-    #     m_out = A_t * P_c / c_star
-    #     accumdiff = m_out - m_in*(rho_p - rho_c)
-    #     print("ACUUUUUUM",np.abs(accumdiff), m_in*(rho_p - rho_c), m_out)
-    #     dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * m_in - m_out)  # Add gas density
-    #     C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
-    #     T = C_f * P_c * A_t
-    #     Isp = T / g0 / m_out
-    #     m_list.append(m_out)
-    #     Isp_list.append(Isp)
-    #     p_list.append(P_c)
-    #     pepa_list.append(P_c * FindPratio(Gamma, eps) / P_a)
-    #     T_list.append(T)
-    #     r_list.append(r)
-    #     prev_I = I_list[-1]
-    #     I_list.append(prev_I + (T * dt))
+    # c_star = linearize('Characteristic velocity_opt', P_c)
+    # Gamma = linearize('Gamma', P_c)
+    # C_f0 = linearize('Thrust coefficient_opt', P_c)
+    # T_c = linearize("Temperature", P_c)
+    # R = linearize('Gas constant', P_c) * 1000
+    # rho_c = P_c / R / T_c
     #
-    #     d_port+= r*dt
-    #     P_c += dpdt*dt
-    #     print("DPDT",dpdt)
-
-    for _ in range(10):
-        c_star = linearize('Characteristic velocity_opt', P_c)
-        P_c = (c_star * rho_p * a * S / A_t)**(1 / (1-n))
-    r = regrate(P_c, a, n)
-    m_dot = r * S * rho_p
-
-    c_star = linearize('Characteristic velocity_opt', P_c)
-    Gamma = linearize('Gamma', P_c)
-    C_f0 = linearize('Thrust coefficient_opt', P_c)
-    T_c = linearize("Temperature", P_c)
-    R = linearize('Gas constant', P_c) * 1000
-    rho_c = P_c / R / T_c
-
-    C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) + P_a / P_c) * eps
+    # C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) + P_a / P_c) * eps
     o = 0
     # BURN LOOP
 
     while d_port <= d_out:
         o += 1
-        #print("Running", o, P_c)
+        print("Running", o, P_c)
         S_burn = d_port * np.pi * l_p
         P_c = (c_star * (rho_p-rho_c) * a * S_burn / A_t) ** (1 / (1 - n))
         T_c = linearize("Temperature", P_c)
