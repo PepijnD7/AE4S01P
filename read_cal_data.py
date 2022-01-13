@@ -1,4 +1,4 @@
-from nptdms import TdmsFile
+#from nptdms import TdmsFile
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -168,6 +168,7 @@ def get_properties(filename):
 
     prop_dict['Thrust time']   = (end - start).round(3)
     prop_dict['Ignition time'] = (start - ignition).round(3)
+    prop_dict['Start time'] = start
 
     # analyse data
     for [t, y] in par_list:
