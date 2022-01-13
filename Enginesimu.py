@@ -76,7 +76,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
             c_star = linearize('Characteristic velocity_opt', P_c)
             C_f0 = linearize('Thrust coefficient_opt', P_c)
             T_c = linearize("Temperature", P_c)
-            R = linearizeAccumulate('Gas Constant', P_c) * 1000
+            R = linearize('Gas constant', P_c) * 1000
 
         rho_c = P_c/R/T_c           # Combustion gas density
         r = regrate(P_c, a, n)      # Regression rate
