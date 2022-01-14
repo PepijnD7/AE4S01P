@@ -4,7 +4,7 @@ from Read_Data import linearize
 from Read_Provided_data import plot_given_data
 from read_cal_data import read_data
 from read_cal_data import get_properties
-from Enginesimu import Simulation
+from Quality_factors import Simulation
 from Enginesimu import dt
 
 
@@ -116,7 +116,6 @@ plt.legend()
 plt.show()
 
 
-print(get_properties('Config2_211221_132537'))
 
 
 

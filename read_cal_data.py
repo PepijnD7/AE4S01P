@@ -166,7 +166,7 @@ def get_properties(filename):
     end_index = np.where(data['LC'][max_index:] < end_value)[0][0] + max_index
     end = data['LC_time'][end_index]
 
-    prop_dict['Thrust time']   = (end - start).round(3)
+    prop_dict['Burn time']   = (end - start).round(3)
     prop_dict['Ignition time'] = (start - ignition).round(3)
     prop_dict['Start time'] = start
 
@@ -175,7 +175,7 @@ def get_properties(filename):
         # plot data with begin and end indicated as vertical line
         plt.plot(data[t], data[y])
         plt.vlines([ignition, start, end], np.min(data[y]), np.max(data[y]), colors='r')
-        plt.show()
+        # plt.show()
 
         # firing properties
         if y == 'IM':
