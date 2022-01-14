@@ -46,7 +46,7 @@ alphaII = 15 * np.pi / 180          # Configuration II
 eps = 4
 T_a = 273.15 + 4
 
-const = [d_port, d_out, l_p, alphaII, eps, a, n, P_a, m_p, rho_p]
+const = [d_port, d_out, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
 t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const)
 
 # Create lists of simulation data
