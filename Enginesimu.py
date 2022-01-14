@@ -5,6 +5,7 @@ from Read_Provided_data import plot_given_data
 
 # TODO: Implement variation of a based on temperature variations
 
+
 # Auxiliary functions
 def regrate(P, a, n):
     r = a * P**n
@@ -29,7 +30,7 @@ def FindPratio(Gamma, eps):
 # Simulation function
 def Simulation(con, density=0.0):   # Propellant density can be entered as an input, otherwise it is determined as m_p/V_grain
     g0 = 9.81
-    d_port, d_out, l_p, alpha, eps, a, n, m_p, P_a, T_a = con
+    d_port, d_out, l_p, alpha, eps, a, n, m_p, P_a, T_a = con                           # This is the input data of the simulation
     a = (1.55 * 10 ** (-5) * (T_a - 273.15) + 4.47 * 10 ** (-3))* (10 ** (-6)) ** n     # Determine regression constant
                                                                                         # with ambient temp
 
@@ -46,7 +47,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
     # Parameters that will change:
     V_c = l_p * (d_port/2)**2 * np.pi   # Chamber volume
     P_c = P_a                           # Initial chamber pressure = ambient
-    dt = 0.001                          # Small time step for chamber filling
+    dt = 0.002                          # Small time step for chamber filling
     dpdt = 1
 
     m_list = []                         # Lists to append interesting data
@@ -75,7 +76,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
             c_star = linearize('Characteristic velocity_opt', P_c)
             C_f0 = linearize('Thrust coefficient_opt', P_c)
             T_c = linearize("Temperature", P_c)
-            R = linearizeAccumulate('Gas Constant', P_c) * 1000
+            R = linearize('Gas constant', P_c) * 1000
 
         rho_c = P_c/R/T_c           # Combustion gas density
         r = regrate(P_c, a, n)      # Regression rate
@@ -120,7 +121,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
     # C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) + P_a / P_c) * eps
 
     # BURN LOOP
-    dt=0.1                          # Use a larger time step for steady state calculation
+    # dt=0.1                          # Use a larger time step for steady state calculation
     o = 0                           # Loop counter
     while d_port <= d_out:
         o += 1
@@ -158,7 +159,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
 
     # CHAMBER EMPTYING
     r=0                             # Regression rate = 0
-    dt = 0.001
+    dt = 0.002
     while P_c>P_a:                  # Chamber needs to be emptied until Pc=Pa
         S = np.pi * l_p * d_port
 
@@ -175,7 +176,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
             c_star = linearize('Characteristic velocity_opt', P_c)
             C_f0 = linearize('Thrust coefficient_opt', P_c)
             T_c = linearize("Temperature", P_c)
-            R = linearizeAccumulate('Gas Constant', 900000)
+            R = linearize("Gas constant", P_c) * 1000
 
         rho_c = P_c/R/T_c
         m_in = r * S * rho_p

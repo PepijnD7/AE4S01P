@@ -4,7 +4,9 @@ from Read_Data import linearize
 from Read_Provided_data import plot_given_data
 from read_cal_data import read_data
 from read_cal_data import get_properties
-from Enginesimu import *
+from Enginesimu import Simulation
+from Enginesimu import dt
+
 
 # Get data from read_cal_data
 Imp_test = read_data('Config2_211221_132537')['IM']
@@ -21,14 +23,31 @@ Imp_test_list = []  # Total impulse measurements of test data
 T_test_list = []    # Thrust measurements of test data
 
 # Create lists of measurements with a time interval of 0.1 seconds
-for i in range(0,len(time_test),50):
+for i in range(0,len(time_test),int(dt/0.002)):
     time_test_list.append(time_test[i])
     T_test_list.append(T_test[i])
     Imp_test_list.append(Imp_test[i])
 
-for i in range(0,len(Pc_test),25):
+for i in range(0,len(Pc_test),int(dt/0.004)):
     time_Pc_list.append(time_Pc[i])
     Pc_test_list.append(Pc_test[i])
+
+# Obtain simulation data with adapted parameters for our configuration
+n = 0.222
+a = 0.005132 * (10 ** (-6)) ** n
+P_a = 101325
+rho_p = 1720.49
+m_p = 0.823
+l_p = 0.10375
+d_out = 0.07559
+d_port = 0.0278
+d_t = 8.3 / 1000
+alphaII = 15 * np.pi / 180          # Configuration II
+eps = 4
+T_a = 273.15 + 4
+
+const = [d_port, d_out, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -42,8 +61,10 @@ for i in range(0,len(p_II)):
 
 # Find index of start of the burn( actual value is 40.81402 but 40.80002 is deemed accurate enough)
 # Separate index is required for pressure since it has a different amount of data points
-start_index = np.where(np.array(time_test_list)==40.80002)[0][0]
-start_index_pressure = np.where(np.array(time_Pc_list) == 40.80004)[0][0]
+condition = abs(np.array(time_test_list) - get_properties('Config2_211221_132537')['Start time'])
+condition_pressure = abs(np.array(time_Pc_list) - get_properties('Config2_211221_132537')['Start time'])
+start_index = np.where(condition < dt)[0][0]
+start_index_pressure = np.where(condition_pressure < dt)[0][0]
 
 T_sim_II_list = [0]*start_index     # List of zeros prior to simulation data
 Imp_sim_II_list = [0]*start_index   # List of zeros prior to simulation data
