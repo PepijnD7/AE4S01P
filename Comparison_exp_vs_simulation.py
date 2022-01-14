@@ -28,9 +28,11 @@ for i in range(0,len(time_test),int(dt/0.002)):
     T_test_list.append(T_test[i])
     Imp_test_list.append(Imp_test[i])
 
+
 for i in range(0,len(Pc_test),int(dt/0.004)):
     time_Pc_list.append(time_Pc[i])
     Pc_test_list.append(Pc_test[i])
+
 
 # Obtain simulation data with adapted parameters for our configuration
 n = 0.222
@@ -46,7 +48,7 @@ alphaII = 15 * np.pi / 180          # Configuration II
 eps = 4
 T_a = 273.15 + 4
 
-const = [d_port, d_out, l_p, alphaII, eps, a, n, P_a, m_p, rho_p]
+const = [d_port, d_out,d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
 t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const)
 
 # Create lists of simulation data

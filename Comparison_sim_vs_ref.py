@@ -26,9 +26,14 @@ for i in range(0,len(time_ref),int(dt/0.002)):
     T_ref_list.append(T_ref[i])
     Imp_ref_list.append(Imp_ref[i])
 
-for i in range(0,len(Pc_ref),int(dt/0.004)):
-    time_Pc_ref_list.append(time_Pc_ref[i])
-    Pc_ref_list.append(Pc_ref[i])
+if dt > 0.004:
+    for i in range(0,len(Pc_ref),int(dt/0.004)):
+        time_Pc_ref_list.append(time_Pc_ref[i])
+        Pc_ref_list.append(Pc_ref[i])
+else:
+    for i in range(0,len(Pc_ref),1):
+        time_Pc_ref_list.append(time_Pc_ref[i])
+        Pc_ref_list.append(Pc_ref[i])
 
 # Obtain simulation data with adapted parameters for reference test configuration
 n = 0.222
@@ -44,7 +49,7 @@ alpha = 12 * np.pi / 180          # reference Configuration
 eps = 4
 T_a = 273.15 + 3
 
-const = [d_port, d_out, l_p, alpha, eps, a, n, P_a, m_p, rho_p]
+const = [d_port, d_out,d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a]
 t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const)
 
 # Create lists of simulation data
@@ -91,23 +96,23 @@ for i in range(0,(len(time_Pc_ref_list) - len(Pc_sim_II_list))):
     Pc_sim_II_list.append(zero_after[i])
 
 plt.subplot(1,3,1)
-plt.suptitle("Comparison of simulation data with experimental data for Configuration II")
-plt.plot(time_ref_list,T_ref_list, label = 'Experimental data config II')
-plt.plot(time_ref_list,T_sim_II_list, label = 'Simulation data config II')
+plt.suptitle("Comparison of simulation data with reference data from day 1")
+plt.plot(time_ref_list,T_ref_list, label = 'Reference data')
+plt.plot(time_ref_list,T_sim_II_list, label = 'Simulation data ref config')
 plt.ylabel("Thrust [N]")
 plt.xlabel('Time [s]')
 plt.grid()
 plt.legend()
 plt.subplot(1,3,2)
-plt.plot(time_Pc_ref_list,Pc_ref_list,label = 'Experimental data config II')
-plt.plot(time_Pc_ref_list,Pc_sim_II_list,label = 'Simulation data config II')
+plt.plot(time_Pc_ref_list,Pc_ref_list,label = 'Reference data')
+plt.plot(time_Pc_ref_list,Pc_sim_II_list,label = 'Simulation data ref config')
 plt.ylabel('Chamber Pressure [Pa]')
 plt.xlabel('Time [s]')
 plt.legend()
 plt.grid()
 plt.subplot(1,3,3)
-plt.plot(time_ref_list,Imp_ref_list,label = 'Experimental data config II')
-plt.plot(time_ref_list,Imp_sim_II_list,label = 'Simulation data config II')
+plt.plot(time_ref_list,Imp_ref_list,label = 'Reference data')
+plt.plot(time_ref_list,Imp_sim_II_list,label = 'Simulation data ref config')
 plt.ylabel('Total Impulse [Ns]')
 plt.xlabel('Time [s]')
 plt.grid()

@@ -50,7 +50,7 @@ t = np.arange(0,14.768,0.002)
 t_Pc = np.arange(0,14.656,0.004)
 
 plt.subplot(1,3,1)
-plt.suptitle("Comparison of reference data of original configuration with experimental data for Configuration II")
+plt.suptitle("Comparison of reference data of day 2 original configuration with experimental data for Configuration II")
 plt.plot(t,T_test_list, label = 'Experimental data config II')
 plt.plot(t,T_ref_list, label = 'Reference data')
 plt.ylabel("Thrust [N]")
