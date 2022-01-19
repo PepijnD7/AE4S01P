@@ -30,7 +30,7 @@ dt = 0.004
 # Simulation function
 def Simulation(con, density=0.0):   # Propellant density can be entered as an input, otherwise it is determined as m_p/V_grain
     g0 = 9.81
-    d_port, d_out,d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a = con
+    d_port, d_out, d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a = con
     a = (1.55 * 10 ** (-5) * (T_a - 273.15) + 4.47 * 10 ** (-3))* (10 ** (-6)) ** n     # Determine regression constant
                                                                                         # with ambient temp
 
@@ -102,7 +102,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
 
         d_port+= r*dt               # Update grain port diameter and chamber pressure
         P_c += dpdt*dt
-    print("CHAMBER FILLED at t=", t_list[-1],"\n")
+    print("CHAMBER FILLED at t=", t_list[-1], "\n")
 
     # OLD CHAMBER FILL
     # for _ in range(10):
@@ -234,9 +234,9 @@ if __name__=='__main__':
     alpha_given = 12 * np.pi / 180
     rho_p_given = 1786.5
 
-    const = [d_port, d_out, l_p, alphast, eps, a, n, m_p, P_a, T_a]
-    conII = [d_port, d_out, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
-    const_given = [d_port_given, d_out_given, l_p_given, alpha_given, eps, a, n, m_p_given, P_a, T_a]
+    const = [d_port, d_out, d_t, l_p, alphast, eps, a, n, m_p, P_a, T_a]
+    conII = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
+    const_given = [d_port_given, d_out_given, d_t, l_p_given, alpha_given, eps, a, n, m_p_given, P_a, T_a]
     t_st, p_st, I_st, m_st, T_st, r_st, Isp_st, pepa_st = Simulation(const)
     t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(conII)
     t_given, p_given, _, _, _, _, _, _ = Simulation(const_given, density=rho_p_given)
@@ -324,11 +324,11 @@ if __name__=='__main__':
         plt.legend()
         plt.show()
 
-        # plt.plot(t_II, pepa_II, label='Config. II')
-        # plt.xlabel("Time [s]", fontsize=13)
-        # plt.ylabel(r"$p_e/p_a$", fontsize=13)
-        # plt.grid()
-        # plt.show()
+        plt.plot(t_II, pepa_II, label='Config. II')
+        plt.xlabel("Time [s]", fontsize=13)
+        plt.ylabel(r"$p_e/p_a$", fontsize=13)
+        plt.grid()
+        plt.show()
 
 
     if given:

@@ -37,18 +37,18 @@ for i in range(0,len(Pc_test),int(dt/0.004)):
 # Obtain simulation data with adapted parameters for our configuration
 n = 0.222
 a = 0.005132 * (10 ** (-6)) ** n
-P_a = 101325
+P_a = 102600
 rho_p = 1720.49
-m_p = 0.823
+m_p = 0.767
 l_p = 0.10375
 d_out = 0.07559
-d_port = 0.0278
-d_t = 8.3 / 1000
+d_port = 0.02478
+d_t = 0.0083
 alphaII = 15 * np.pi / 180          # Configuration II
 eps = 4
-T_a = 273.15 + 4
+T_a = 277.15
 
-const = [d_port, d_out,d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
+const = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
 t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const)
 
 # Create lists of simulation data

@@ -31,7 +31,7 @@ dt = 0.004
 # Simulation function
 def Simulation(con, density=0.0):   # Propellant density can be entered as an input, otherwise it is determined as m_p/V_grain
     g0 = 9.81
-    d_port, d_out,d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a = con
+    d_port, d_out, d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a = con
     a = (1.55 * 10 ** (-5) * (T_a - 273.15) + 4.47 * 10 ** (-3))* (10 ** (-6)) ** n     # Determine regression constant
     # with ambient temp
 

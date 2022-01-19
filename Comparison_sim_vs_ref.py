@@ -38,16 +38,16 @@ else:
 # Obtain simulation data with adapted parameters for reference test configuration
 n = 0.222
 a = 0.005132 * (10 ** (-6)) ** n
-P_a = 101325
+P_a = 102965
 rho_p = 1720.49
-m_p = 0.823
-l_p = 0.10375
-d_out = 0.07559
+m_p = 0.775
+l_p = 0.1041
+d_out = 0.0755
 d_port = 0.0236
 d_t = 8.3 / 1000
 alpha = 12 * np.pi / 180          # reference Configuration
 eps = 4
-T_a = 273.15 + 3
+T_a = 276.15
 
 const = [d_port, d_out,d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a]
 t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const)
