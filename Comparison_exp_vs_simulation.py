@@ -6,7 +6,7 @@ from read_cal_data import read_data
 from read_cal_data import get_properties
 from Quality_factors import Simulation
 from Enginesimu import dt
-
+#from Enginesimu import Simulation
 
 # Get data from read_cal_data
 Imp_test = read_data('Config2_211221_132537')['IM']
@@ -48,8 +48,13 @@ alphaII = 15 * np.pi / 180          # Configuration II
 eps = 4
 T_a = 277.15
 
+# Quality factors
+# xi_n = 1    # Nozzle quality
+# xi_c = 1    # Combustion quality
+# xi_d = 0.75 # Discharge coefficient
+
 const = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=1, xi_c=1, xi_d=0.5)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -92,22 +97,22 @@ for i in range(0,(len(time_Pc_list) - len(Pc_sim_II_list))):
     Pc_sim_II_list.append(zero_after[i])
 
 plt.subplot(1,3,1)
-plt.suptitle("Comparison of simulation data with experimental data for Configuration II")
-plt.plot(time_test_list,T_test_list, label = 'Experimental data config II')
+plt.suptitle("Comparison of simulation data with test data for configuration II, \n with a combustion quality factor of 80% and a nozzle quality factor of 86%")
+plt.plot(time_test_list,T_test_list, label = 'Test data config II')
 plt.plot(time_test_list,T_sim_II_list, label = 'Simulation data config II')
 plt.ylabel("Thrust [N]")
 plt.xlabel('Time [s]')
 plt.grid()
 plt.legend()
 plt.subplot(1,3,2)
-plt.plot(time_Pc_list,Pc_test_list,label = 'Experimental data config II')
+plt.plot(time_Pc_list,Pc_test_list,label = 'Test data config II')
 plt.plot(time_Pc_list,Pc_sim_II_list,label = 'Simulation data config II')
 plt.ylabel('Chamber Pressure [Pa]')
 plt.xlabel('Time [s]')
 plt.legend()
 plt.grid()
 plt.subplot(1,3,3)
-plt.plot(time_test_list,Imp_test_list,label = 'Experimental data config II')
+plt.plot(time_test_list,Imp_test_list,label = 'Test data config II')
 plt.plot(time_test_list,Imp_sim_II_list,label = 'Simulation data config II')
 plt.ylabel('Total Impulse [Ns]')
 plt.xlabel('Time [s]')

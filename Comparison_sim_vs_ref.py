@@ -4,15 +4,16 @@ from Read_Data import linearize
 from Read_Provided_data import plot_given_data
 from read_cal_data import read_data
 from read_cal_data import get_properties
-from Enginesimu import Simulation
+from Quality_factors import Simulation
+#from Enginesimu import Simulation
 from Enginesimu import dt
 
 # Get test data of reference test
-Imp_ref = read_data('ReferenceMotor_211221_114135')['IM']
-T_ref = read_data('ReferenceMotor_211221_114135')['LC']
-Pc_ref = read_data('ReferenceMotor_211221_114135')['PS']
-time_ref = read_data('ReferenceMotor_211221_114135')['LC_time']
-time_Pc_ref = read_data('ReferenceMotor_211221_114135')['PS_time']
+Imp_ref = read_data('ReferenceMotor_211222_092347')['IM']
+T_ref = read_data('ReferenceMotor_211222_092347')['LC']
+Pc_ref = read_data('ReferenceMotor_211222_092347')['PS']
+time_ref = read_data('ReferenceMotor_211222_092347')['LC_time']
+time_Pc_ref = read_data('ReferenceMotor_211222_092347')['PS_time']
 
 Imp_ref_list = []
 T_ref_list = []
@@ -63,12 +64,12 @@ for i in range(0,len(p_II)):
     Imp_sim_II.append(I_II[i])
 
 
-print(get_properties('ReferenceMotor_211221_114135'))
+print(get_properties('ReferenceMotor_211222_092347'))
 
 # Find index of start of the burn( actual value is 40.81402 but 40.80002 is deemed accurate enough)
 # Separate index is required for pressure since it has a different amount of data points
-condition = abs(np.array(time_ref_list) - get_properties('ReferenceMotor_211221_114135')['Start time'])
-condition_pressure = abs(np.array(time_Pc_ref_list) - get_properties('ReferenceMotor_211221_114135')['Start time'])
+condition = abs(np.array(time_ref_list) - get_properties('ReferenceMotor_211222_092347')['Start time'])
+condition_pressure = abs(np.array(time_Pc_ref_list) - get_properties('ReferenceMotor_211222_092347')['Start time'])
 start_index = np.where(condition < dt)[0][0]
 start_index_pressure = np.where(condition_pressure < dt)[0][0]
 
@@ -96,23 +97,23 @@ for i in range(0,(len(time_Pc_ref_list) - len(Pc_sim_II_list))):
     Pc_sim_II_list.append(zero_after[i])
 
 plt.subplot(1,3,1)
-plt.suptitle("Comparison of simulation data with reference data from day 1")
+plt.suptitle("Comparison of simulation data with reference data from day 2 \n with a combustion quality factor of 83% and a nozzle quality factor of 90%")
 plt.plot(time_ref_list,T_ref_list, label = 'Reference data')
-plt.plot(time_ref_list,T_sim_II_list, label = 'Simulation data ref config')
+plt.plot(time_ref_list,T_sim_II_list, label = 'Simulation data ref config I')
 plt.ylabel("Thrust [N]")
 plt.xlabel('Time [s]')
 plt.grid()
 plt.legend()
 plt.subplot(1,3,2)
 plt.plot(time_Pc_ref_list,Pc_ref_list,label = 'Reference data')
-plt.plot(time_Pc_ref_list,Pc_sim_II_list,label = 'Simulation data ref config')
+plt.plot(time_Pc_ref_list,Pc_sim_II_list,label = 'Simulation data ref config I')
 plt.ylabel('Chamber Pressure [Pa]')
 plt.xlabel('Time [s]')
 plt.legend()
 plt.grid()
 plt.subplot(1,3,3)
 plt.plot(time_ref_list,Imp_ref_list,label = 'Reference data')
-plt.plot(time_ref_list,Imp_sim_II_list,label = 'Simulation data ref config')
+plt.plot(time_ref_list,Imp_sim_II_list,label = 'Simulation data ref config I')
 plt.ylabel('Total Impulse [Ns]')
 plt.xlabel('Time [s]')
 plt.grid()

@@ -29,7 +29,7 @@ def FindPratio(Gamma, eps):
 
 dt = 0.004
 # Simulation function
-def Simulation(con, density=0.0):   # Propellant density can be entered as an input, otherwise it is determined as m_p/V_grain
+def Simulation(con, density=0.0,xi_n = 1, xi_c =1, xi_d = 1):   # Propellant density can be entered as an input, otherwise it is determined as m_p/V_grain
     g0 = 9.81
     d_port, d_out, d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a = con
     a = (1.55 * 10 ** (-5) * (T_a - 273.15) + 4.47 * 10 ** (-3))* (10 ** (-6)) ** n     # Determine regression constant
@@ -37,10 +37,10 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
 
     # INITIAL CONDITIONS and CHAMBER FILL:
     # Parameters that do not change:
-    eta_n = 0.87  # Nozzle quality
-    eta_c = 0.72  # Combustion quality
-    eta_f = 1   # Thrust quality
-    eta_s = eta_c * eta_n   # Isp quality
+    # eta_n = 0.97  # Nozzle quality
+    # eta_c = 0.8  # Combustion quality
+    # eta_f = 1   # Thrust quality
+    # eta_s = eta_c * eta_n   # Isp quality
 
     A_t = (d_t ** 2 * np.pi / 4)
     V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
@@ -72,14 +72,14 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
         if P_c < 10**6:                 # Find the combustion data from RPA-Lite, using the right function
             Gamma = linearizeAccumulate('Gamma', P_c)
             vdk = Kerckhove(Gamma)
-            c_star = eta_c *linearizeAccumulate('Characteristic velocity_opt', P_c)
+            c_star = xi_c * linearizeAccumulate('Characteristic velocity_opt', P_c)
             C_f0 = linearizeAccumulate('Thrust coefficient_opt', P_c)
             T_c = linearizeAccumulate("Temperature", P_c)
             R = linearizeAccumulate('Gas Constant', P_c)
         else:
             Gamma = linearize('Gamma', P_c)
             vdk = Kerckhove(Gamma)
-            c_star = eta_c * linearize('Characteristic velocity_opt', P_c)
+            c_star = xi_c * linearize('Characteristic velocity_opt', P_c)
             C_f0 = linearize('Thrust coefficient_opt', P_c)
             T_c = linearize("Temperature", P_c)
             R = linearize('Gas constant', P_c) * 1000
@@ -92,7 +92,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
 
         dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * S * r - c_star * A_t * P_c)  # Change in chamber pressure
 
-        C_f = eta_n * C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps    # Thrust calculation, with div. loss
+        C_f = xi_n * C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps    # Thrust calculation, with div. loss
         T = np.max((C_f * P_c * A_t, 0))
         Isp = T / g0 / m_out
 
@@ -137,16 +137,16 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
 
         T_c = linearize("Temperature", P_c)                             # Find combustion data from RPA-Lite
         R = linearize("Gas constant", P_c) * 1000
-        c_star = eta_c * linearize('Characteristic velocity_opt', P_c)
+        c_star = xi_c * linearize('Characteristic velocity_opt', P_c)
         Gamma = linearize('Gamma', P_c)
         C_f0 = linearize('Thrust coefficient_opt', P_c)
 
         rho_c = P_c / R / T_c                                           # Update chamber parameters
         r = regrate(P_c, a, n)
         m_in = rho_p * r * S
-        m_out = A_t * P_c / c_star
+        m_out = xi_d * A_t * P_c / c_star
 
-        C_f = eta_n * C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps    # Determine thrust
+        C_f = xi_n * C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps    # Determine thrust
         T = C_f * P_c * A_t
         Isp = T / g0 / m_out
 
@@ -172,7 +172,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
         if P_c < 10**6:             # Get combustion data from RPA-Lite
             Gamma = linearizeAccumulate('Gamma', P_c)
             vdk = Kerckhove(Gamma)
-            c_star = eta_c * linearizeAccumulate('Characteristic velocity_opt', P_c)
+            c_star = xi_c * linearizeAccumulate('Characteristic velocity_opt', P_c)
             C_f0 = linearizeAccumulate('Thrust coefficient_opt', P_c)
             T_c = linearizeAccumulate("Temperature", P_c)
             R = linearizeAccumulate('Gas Constant', P_c)
@@ -190,7 +190,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
         m_accum = m_in - m_out
 
         dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * S * r - c_star * A_t * P_c)
-        C_f = eta_n * C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
+        C_f = xi_n * C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
         T = np.max((C_f * P_c * A_t, 0))
         Isp = T / g0 / m_out
 
