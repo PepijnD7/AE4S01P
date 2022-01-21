@@ -109,47 +109,40 @@ for i in range(0,len(time_Pc_ref_list)):
     Pc_error.append(diff_pc)
 
 
-plt.subplot(1,3,1)
-plt.suptitle("Comparison of simulation data with reference data from day 2 \n without quality factors")
-plt.plot(time_ref_list[2000:-500],T_ref_list[2000:-500], label = 'Reference data')
-plt.plot(time_ref_list[2000:-500],T_sim_II_list[2000:-500], label = 'Simulation data reference config')
-plt.ylabel("Thrust [N]")
-plt.xlabel('Time [s]')
-plt.grid()
-plt.legend()
-plt.subplot(1,3,2)
-plt.plot(time_Pc_ref_list[2000:-500],Pc_ref_list[2000:-500],label = 'Reference data')
-plt.plot(time_Pc_ref_list[2000:-500],Pc_sim_II_list[2000:-500],label = 'Simulation data reference config')
-plt.ylabel('Chamber Pressure [Pa]')
-plt.xlabel('Time [s]')
-plt.legend()
-plt.grid()
-plt.subplot(1,3,3)
-plt.plot(time_ref_list[2000:-500],Imp_ref_list[2000:-500],label = 'Reference data')
-plt.plot(time_ref_list[2000:-500],Imp_sim_II_list[2000:-500],label = 'Simulation data reference config')
-plt.ylabel('Total Impulse [Ns]')
-plt.xlabel('Time [s]')
-plt.grid()
-plt.legend()
-plt.show()
+line_width = 1.5
+fig, ax = plt.subplots(2, 3, gridspec_kw={'height_ratios': [2, 1]})
+fig.suptitle("Comparison of simulation data with reference data from day 2 \n without quality factors")
 
-plt.subplot(1,3,1)
-plt.suptitle("Difference between test data and simulation data of the reference configuration")
-plt.plot(time_ref_list[2000:-500],T_error[2000:-500], label = 'Difference in thrust')
-plt.ylabel("Thrust [N]")
-plt.xlabel('Time [s]')
-plt.grid()
-plt.legend()
-plt.subplot(1,3,2)
-plt.plot(time_Pc_ref_list[2000:-500],Pc_error[2000:-500],label = 'Difference in chamber pressure')
-plt.ylabel('Chamber Pressure [Pa]')
-plt.xlabel('Time [s]')
-plt.legend()
-plt.grid()
-plt.subplot(1,3,3)
-plt.plot(time_ref_list[2000:-500],Imp_error[2000:-500],label = 'Difference in total impulse')
-plt.ylabel('Total Impulse [Ns]')
-plt.xlabel('Time [s]')
-plt.grid()
-plt.legend()
+l1, = ax[0, 0].plot(time_ref_list[2000:-500],T_ref_list[2000:-500], label = 'Reference data', linewidth=line_width)
+l2, = ax[0, 0].plot(time_ref_list[2000:-500],T_sim_II_list[2000:-500], label = 'Simulation data reference config', linewidth=line_width)
+ax[0, 0].set_ylabel("Thrust [N]")
+ax[0, 0].set_xlabel('Time [s]')
+
+ax[1, 0].plot(time_ref_list[2000:-500], T_error[2000:-500], linestyle="--", color='mediumaquamarine')
+ax[1, 0].set_ylabel("Absolute error [N]")
+
+ax[0, 1].plot(time_Pc_ref_list[2000:-500],Pc_ref_list[2000:-500],label = 'Reference data', linewidth=line_width)
+ax[0, 1].plot(time_Pc_ref_list[2000:-500],Pc_sim_II_list[2000:-500],label = 'Simulation data reference config', linewidth=line_width)
+ax[0, 1].set_ylabel('Chamber Pressure [Pa]')
+ax[0, 1].set_xlabel('Time [s]')
+
+ax[1, 1].plot(time_Pc_ref_list[2000:-500], Pc_error[2000:-500], linestyle="--", color='mediumaquamarine')
+ax[1, 1].set_ylabel("Absolute error [Pa]")
+
+ax[0, 2].plot(time_ref_list[2000:-500],Imp_ref_list[2000:-500],label = 'Reference data', linewidth=line_width)
+ax[0, 2].plot(time_ref_list[2000:-500],Imp_sim_II_list[2000:-500],label = 'Simulation data reference config', linewidth=line_width)
+ax[0, 2].set_ylabel('Total Impulse [Ns]')
+ax[0, 2].set_xlabel('Time [s]')
+
+ax[1, 2].plot(time_ref_list[2000:-500], Imp_error[2000:-500], linestyle="--", color='mediumaquamarine')
+ax[1, 2].set_ylabel("Absolute error [Ns]")
+
+fig.legend([l1, l2],  # The line objects
+           labels=['Test data config II', 'Reference data'],  # The labels for each line
+           loc="lower center",  # Position of legend
+           borderaxespad=0.1,  # Small spacing around legend box
+           bbox_to_anchor=(0, 0.83, 1, 1),
+           ncol=2
+           )
+
 plt.show()

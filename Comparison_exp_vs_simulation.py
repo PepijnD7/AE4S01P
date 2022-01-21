@@ -101,60 +101,54 @@ T_error = []
 Imp_error = []
 Pc_error = []
 for i in range(0,len(time_test_list)):
-    diff_T = abs(T_sim_II_list[i] -T_test_list[i])
-    diff_Imp = abs(Imp_sim_II_list[i] - Imp_test_list[i])
+    diff_T = abs(T_sim_II_list[i] -T_test_list[i]) / T_sim_II_list[i] * 100
+    diff_Imp = abs(Imp_sim_II_list[i] - Imp_test_list[i]) / Imp_sim_II_list[i] * 100
     T_error.append(diff_T)
     Imp_error.append(diff_Imp)
 for i in range(0,len(time_Pc_list)):
-    diff_pc = abs(Pc_sim_II_list[i] - Pc_test_list[i])
+    diff_pc = abs(Pc_sim_II_list[i] - Pc_test_list[i]) / Pc_sim_II_list[i] * 100
     Pc_error.append(diff_pc)
 
 
+line_width = 1.5
+fig, ax = plt.subplots(2, 3, gridspec_kw={'height_ratios': [2, 1]})
+fig.suptitle("Comparison of simulation data with test data for configuration II, \n without quality factors")
 
-plt.subplot(1,3,1)
-plt.suptitle("Comparison of simulation data with test data for configuration II, \n without quality factors")
-plt.plot(time_test_list[500:-2200],T_test_list[500:-2200], label = 'Test data config II')
-plt.plot(time_test_list[500:-2200],T_sim_II_list[500:-2200], label = 'Simulation data config II')
-plt.ylabel("Thrust [N]")
-plt.xlabel('Time [s]')
-plt.grid()
-plt.legend()
-plt.subplot(1,3,2)
-plt.plot(time_Pc_list[500:-2200],Pc_test_list[500:-2200],label = 'Test data config II')
-plt.plot(time_Pc_list[500:-2200],Pc_sim_II_list[500:-2200],label = 'Simulation data config II')
-plt.ylabel('Chamber Pressure [Pa]')
-plt.xlabel('Time [s]')
-plt.legend()
-plt.grid()
-plt.subplot(1,3,3)
-plt.plot(time_test_list[500:-2200],Imp_test_list[500:-2200],label = 'Test data config II')
-plt.plot(time_test_list[500:-2200],Imp_sim_II_list[500:-2200],label = 'Simulation data config II')
-plt.ylabel('Total Impulse [Ns]')
-plt.xlabel('Time [s]')
-plt.grid()
-plt.legend()
+l1, = ax[0, 0].plot(time_test_list[500:-2200],T_test_list[500:-2200], label = 'Test data config II', linewidth=line_width)
+l2, = ax[0, 0].plot(time_test_list[500:-2200],T_sim_II_list[500:-2200], label = 'Simulation data config II', linewidth=line_width)
+ax[0, 0].set_ylabel("Thrust [N]")
+ax[0, 0].set_xlabel('Time [s]')
+
+ax[1, 0].plot(time_test_list[500:-2200], T_error[500:-2200], linestyle="--", color='mediumaquamarine')
+ax[1, 0].set_ylabel("Absolute error [%]")
+
+ax[0, 1].plot(time_Pc_list[500:-2200],Pc_test_list[500:-2200],label = 'Test data config II', linewidth=line_width)
+ax[0, 1].plot(time_Pc_list[500:-2200],Pc_sim_II_list[500:-2200],label = 'Simulation data config II', linewidth=line_width)
+ax[0, 1].set_ylabel('Chamber Pressure [Pa]')
+ax[0, 1].set_xlabel('Time [s]')
+
+ax[1, 1].plot(time_Pc_list[500:-2200], Pc_error[500:-2200], linestyle="--", color='mediumaquamarine')
+ax[1, 1].set_ylabel("Absolute error [%]")
+
+ax[0, 2].plot(time_test_list[500:-2200],Imp_test_list[500:-2200],label = 'Test data config II', linewidth=line_width)
+ax[0, 2].plot(time_test_list[500:-2200],Imp_sim_II_list[500:-2200],label = 'Simulation data config II', linewidth=line_width)
+ax[0, 2].set_ylabel('Total Impulse [Ns]')
+ax[0, 2].set_xlabel('Time [s]')
+
+ax[1, 2].plot(time_test_list[500:-2200], Imp_error[500:-2200], linestyle="--", color='mediumaquamarine')
+ax[1, 2].set_ylabel("Absolute error [%]")
+
+fig.legend([l1, l2],  # The line objects
+           labels=['Test data config II', 'Reference data'],  # The labels for each line
+           loc="lower center",  # Position of legend
+           borderaxespad=0.1,  # Small spacing around legend box
+           bbox_to_anchor=(0, 0.83, 1, 1),
+           ncol=2
+           )
+
 plt.show()
 
-plt.subplot(1,3,1)
-plt.suptitle("Difference between test data and simulation data of configuration II")
-plt.plot(time_test_list[500:-2200],T_error[500:-2200], label = 'Difference in thrust')
-plt.ylabel("Thrust [N]")
-plt.xlabel('Time [s]')
-plt.grid()
-plt.legend()
-plt.subplot(1,3,2)
-plt.plot(time_Pc_list[500:-2200],Pc_error[500:-2200],label = 'Difference in chamber pressure')
-plt.ylabel('Chamber Pressure [Pa]')
-plt.xlabel('Time [s]')
-plt.legend()
-plt.grid()
-plt.subplot(1,3,3)
-plt.plot(time_test_list[500:-2200],Imp_error[500:-2200],label = 'Difference in total impulse')
-plt.ylabel('Total Impulse [Ns]')
-plt.xlabel('Time [s]')
-plt.grid()
-plt.legend()
-plt.show()
+
 
 
 

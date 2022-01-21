@@ -69,7 +69,7 @@ def Simulation(con, density = 0.0):
     # Parameters that do not change:
     A_t = (d_t ** 2 * np.pi / 4)
     V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
-    dt = 0.005
+    dt = 0.0005
 
     if density == 0:
         rho_p = m_p/V_p
@@ -80,6 +80,7 @@ def Simulation(con, density = 0.0):
     V_c = l_p * (d_port/2)**2 * np.pi
     P_c = 1*10**5
     S = np.pi * l_p * d_port
+    T_old = T_a
 
     # Making lists
     m_list = []
@@ -109,6 +110,12 @@ def Simulation(con, density = 0.0):
             C_f0 = linearize('Thrust coefficient_opt', P_c)
             T_c = linearize("Temperature", P_c)
             R = linearize('Gas constant', P_c)*1000
+
+        # print(T_c,T_old)
+
+        T_c = (T_c - T_old) / 2 + T_old
+        c_star = np.sqrt(R * T_c) / vdk
+        T_old = T_c
 
         rho_c = P_c/R/T_c
         r = regrate(P_c, a, n)
