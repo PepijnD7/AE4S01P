@@ -54,7 +54,7 @@ T_a = 277.15
 # xi_d = 0.75 # Discharge coefficient
 
 const = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=1, xi_c=1)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=0.865, xi_c=1.019521)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -97,6 +97,7 @@ for i in range(0,(len(time_Pc_list) - len(Pc_sim_II_list))):
     Pc_sim_II_list.append(zero_after[i])
 print(len(time_test_list),len(time_Pc_list))
 
+# Create error plots
 T_error = []
 Imp_error = []
 Pc_error = []
@@ -120,7 +121,7 @@ ax[0, 0].set_ylabel("Thrust [N]")
 ax[0, 0].set_xlabel('Time [s]')
 
 ax[1, 0].plot(time_test_list[500:-2200], T_error[500:-2200], linestyle="--", color='mediumaquamarine')
-ax[1, 0].set_ylabel("Absolute error [%]")
+ax[1, 0].set_ylabel("Absolute error")
 
 ax[0, 1].plot(time_Pc_list[500:-2200],Pc_test_list[500:-2200],label = 'Test data config II', linewidth=line_width)
 ax[0, 1].plot(time_Pc_list[500:-2200],Pc_sim_II_list[500:-2200],label = 'Simulation data config II', linewidth=line_width)
@@ -128,7 +129,7 @@ ax[0, 1].set_ylabel('Chamber Pressure [Pa]')
 ax[0, 1].set_xlabel('Time [s]')
 
 ax[1, 1].plot(time_Pc_list[500:-2200], Pc_error[500:-2200], linestyle="--", color='mediumaquamarine')
-ax[1, 1].set_ylabel("Absolute error [%]")
+ax[1, 1].set_ylabel("Absolute error")
 
 ax[0, 2].plot(time_test_list[500:-2200],Imp_test_list[500:-2200],label = 'Test data config II', linewidth=line_width)
 ax[0, 2].plot(time_test_list[500:-2200],Imp_sim_II_list[500:-2200],label = 'Simulation data config II', linewidth=line_width)
@@ -136,7 +137,7 @@ ax[0, 2].set_ylabel('Total Impulse [Ns]')
 ax[0, 2].set_xlabel('Time [s]')
 
 ax[1, 2].plot(time_test_list[500:-2200], Imp_error[500:-2200], linestyle="--", color='mediumaquamarine')
-ax[1, 2].set_ylabel("Absolute error [%]")
+ax[1, 2].set_ylabel("Absolute error")
 
 fig.legend([l1, l2],  # The line objects
            labels=['Test data config II', 'Reference data'],  # The labels for each line
