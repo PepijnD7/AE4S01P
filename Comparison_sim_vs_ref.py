@@ -144,5 +144,5 @@ fig.legend([l1, l2],  # The line objects
            bbox_to_anchor=(0, 0.83, 1, 1),
            ncol=2
            )
-
+plt.subplots_adjust(top=0.80)
 plt.show()

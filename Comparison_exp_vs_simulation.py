@@ -101,12 +101,12 @@ T_error = []
 Imp_error = []
 Pc_error = []
 for i in range(0,len(time_test_list)):
-    diff_T = abs(T_sim_II_list[i] -T_test_list[i]) / T_sim_II_list[i] * 100
-    diff_Imp = abs(Imp_sim_II_list[i] - Imp_test_list[i]) / Imp_sim_II_list[i] * 100
+    diff_T = abs(T_sim_II_list[i] -T_test_list[i])
+    diff_Imp = abs(Imp_sim_II_list[i] - Imp_test_list[i])
     T_error.append(diff_T)
     Imp_error.append(diff_Imp)
 for i in range(0,len(time_Pc_list)):
-    diff_pc = abs(Pc_sim_II_list[i] - Pc_test_list[i]) / Pc_sim_II_list[i] * 100
+    diff_pc = abs(Pc_sim_II_list[i] - Pc_test_list[i])
     Pc_error.append(diff_pc)
 
 
@@ -143,9 +143,9 @@ fig.legend([l1, l2],  # The line objects
            loc="lower center",  # Position of legend
            borderaxespad=0.1,  # Small spacing around legend box
            bbox_to_anchor=(0, 0.83, 1, 1),
-           ncol=2
+           ncol=3
            )
-
+plt.subplots_adjust(top=0.80)
 plt.show()
 
 
