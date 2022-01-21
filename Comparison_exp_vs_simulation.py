@@ -54,7 +54,7 @@ T_a = 277.15
 # xi_d = 0.75 # Discharge coefficient
 
 const = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=1, xi_c=1, xi_d=0.5)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=1, xi_c=1)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -95,25 +95,61 @@ for i in range(0,len(p_II)):
     Pc_sim_II_list.append(Pc_sim_II[i])
 for i in range(0,(len(time_Pc_list) - len(Pc_sim_II_list))):
     Pc_sim_II_list.append(zero_after[i])
+print(len(time_test_list),len(time_Pc_list))
+
+T_error = []
+Imp_error = []
+Pc_error = []
+for i in range(0,len(time_test_list)):
+    diff_T = abs(T_sim_II_list[i] -T_test_list[i])
+    diff_Imp = abs(Imp_sim_II_list[i] - Imp_test_list[i])
+    T_error.append(diff_T)
+    Imp_error.append(diff_Imp)
+for i in range(0,len(time_Pc_list)):
+    diff_pc = abs(Pc_sim_II_list[i] - Pc_test_list[i])
+    Pc_error.append(diff_pc)
+
+
 
 plt.subplot(1,3,1)
-plt.suptitle("Comparison of simulation data with test data for configuration II, \n with a combustion quality factor of 80% and a nozzle quality factor of 86%")
-plt.plot(time_test_list,T_test_list, label = 'Test data config II')
-plt.plot(time_test_list,T_sim_II_list, label = 'Simulation data config II')
+plt.suptitle("Comparison of simulation data with test data for configuration II, \n without quality factors")
+plt.plot(time_test_list[500:-2200],T_test_list[500:-2200], label = 'Test data config II')
+plt.plot(time_test_list[500:-2200],T_sim_II_list[500:-2200], label = 'Simulation data config II')
 plt.ylabel("Thrust [N]")
 plt.xlabel('Time [s]')
 plt.grid()
 plt.legend()
 plt.subplot(1,3,2)
-plt.plot(time_Pc_list,Pc_test_list,label = 'Test data config II')
-plt.plot(time_Pc_list,Pc_sim_II_list,label = 'Simulation data config II')
+plt.plot(time_Pc_list[500:-2200],Pc_test_list[500:-2200],label = 'Test data config II')
+plt.plot(time_Pc_list[500:-2200],Pc_sim_II_list[500:-2200],label = 'Simulation data config II')
 plt.ylabel('Chamber Pressure [Pa]')
 plt.xlabel('Time [s]')
 plt.legend()
 plt.grid()
 plt.subplot(1,3,3)
-plt.plot(time_test_list,Imp_test_list,label = 'Test data config II')
-plt.plot(time_test_list,Imp_sim_II_list,label = 'Simulation data config II')
+plt.plot(time_test_list[500:-2200],Imp_test_list[500:-2200],label = 'Test data config II')
+plt.plot(time_test_list[500:-2200],Imp_sim_II_list[500:-2200],label = 'Simulation data config II')
+plt.ylabel('Total Impulse [Ns]')
+plt.xlabel('Time [s]')
+plt.grid()
+plt.legend()
+plt.show()
+
+plt.subplot(1,3,1)
+plt.suptitle("Difference between test data and simulation data of configuration II")
+plt.plot(time_test_list[500:-2200],T_error[500:-2200], label = 'Difference in thrust')
+plt.ylabel("Thrust [N]")
+plt.xlabel('Time [s]')
+plt.grid()
+plt.legend()
+plt.subplot(1,3,2)
+plt.plot(time_Pc_list[500:-2200],Pc_error[500:-2200],label = 'Difference in chamber pressure')
+plt.ylabel('Chamber Pressure [Pa]')
+plt.xlabel('Time [s]')
+plt.legend()
+plt.grid()
+plt.subplot(1,3,3)
+plt.plot(time_test_list[500:-2200],Imp_error[500:-2200],label = 'Difference in total impulse')
 plt.ylabel('Total Impulse [Ns]')
 plt.xlabel('Time [s]')
 plt.grid()

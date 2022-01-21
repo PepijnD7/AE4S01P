@@ -210,7 +210,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
 
 if __name__=='__main__':
     # set given to True for validation
-    given = False
+    given = True
     # Propellant data
     n = 0.222
     a = 0.005132 * (10 ** (-6)) ** n

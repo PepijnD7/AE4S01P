@@ -33,16 +33,11 @@ tb_sim = t_II[-1] - t_II[0]
 
 T_avg_sim = sum(T_II)/len(T_II)
 I_tot_sim = I_II[-1]
-m_avg_test = sum(m_II) / len(m_II)
-print(m_avg_test)
-m_avg_II_sim = m_p / tb_sim
-print(m_avg_II_sim)
-Isp_avg_II_sim = T_avg_sim / (m_avg_II_sim * 9.81)
-Isp_avg_II_sim_b = I_tot_sim / (m_p * 9.81)
-print(Isp_avg_II_sim, Isp_avg_II_sim_b)
-print(Isp_avg_II_sim * xi_Isp)
+m_avg_II_sim = sum(m_II) / len(m_II) # Average mass flow taken from list of mass flows returned from the simulation
 
-
+m_avg_II_sim_b = m_p / tb_sim # Average mass flow by dividing propellant mass by burn time
+Isp_avg_II_sim = T_avg_sim / (m_avg_II_sim * 9.81)  # Average Isp computed by dividing thrust by average mass flow * g0
+Isp_avg_II_sim_b = I_tot_sim / (m_p * 9.81)     # Average Isp by dividing total impulse by total propellant weight
 
 # Extract test data for configuration II
 properties_II = get_properties('Config2_211221_132537')
@@ -53,11 +48,9 @@ T_avg = properties_II['Average Thrust']
 
 
 
-m_avg_II = m_p / tb
-print(m_avg_II)
-Isp_avg_II = T_avg / (m_avg_II*9.81)
-Isp_avg_II_b = I_tot / (m_p*9.81)
-print(Isp_avg_II,Isp_avg_II_b)
+m_avg_II = m_p / tb     #Average mass flow from test data by dividing propellant mass by burn time
+Isp_avg_II = T_avg / (m_avg_II*9.81)    # Average Isp by dividing thrust by average mass flow*g0
+Isp_avg_II_b = I_tot / (m_p*9.81)       # Average Isp by dividing total impulse by propellant weight
 
 # Reference configuration
 
