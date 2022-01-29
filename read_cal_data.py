@@ -88,7 +88,7 @@ def convert(filename, begin):
         n_points = 30
         if param == 'LC':
             n_points = 1
-            data_y += off - data[param][1][0]  # dit is gefoefel voor reference fire van dag 2
+            data_y += off - data[param][1][0]  # dit is gefoefel voor reference fire van dag 2, maar Jeije approved
 
         # filter the data
         filtered = data_y.copy()
@@ -129,7 +129,7 @@ def save_data(filename_and_begin_list):
                 file.write(pa + ': '      + str(filtered_data[pa][1].tolist())[1:-1] + '\n')
 
 
-def read_data(filename):
+def read_data(filename, corrected=True):
     with open('Filtered_Data.txt') as file:
         first_line = np.infty
         data_dict = {}
@@ -145,36 +145,63 @@ def read_data(filename):
                 param, data = line.strip().split(': ')
                 data_dict[param] = np.array(data.split(', '), dtype=float)
 
+    if corrected:
+        # fig, (axis1, axis2) = plt.subplots(1, 2)
+        # axis1.plot(data_dict['LC_time'], data_dict['LC'], label='not corrected', c='blue')
+        # axis2.plot(data_dict['IM_time'], data_dict['IM'], label='not corrected', c='blue')
+
+        props = get_properties(filename)
+        delta_Thrust = props['Max. Thrust'] - props['LC_end_value']
+        factor_corr = props['Max. Thrust'] / delta_Thrust
+
+        data_dict['LC'][props['max_LC_index']:] -= props['LC_end_value']
+        data_dict['LC'][props['max_LC_index']:] *= factor_corr
+
+        dt = data_dict['LC_time'][1] - data_dict['LC_time'][0]
+        impulse = np.zeros(len(data_dict['LC']) + 1)
+
+        for j in range(1, len(impulse)):
+            impulse[j] = impulse[j - 1] + data_dict['LC'][j - 1] * dt
+        data_dict['IM'] = impulse[1:]
+
+        # axis1.plot(data_dict['LC_time'][props['max_LC_index']:], data_dict['LC'][props['max_LC_index']:],
+        #          label='corrected', c='r')
+        # axis2.plot(data_dict['IM_time'][props['max_LC_index']:], data_dict['IM'][props['max_LC_index']:],
+        #          label='corrected', c='r')
+        # plt.show()
+
     return data_dict
 
 
 def get_properties(filename):
-    data = read_data(filename)
+    data = read_data(filename, False)  # Keep the second argument as False, otherwise you get infinite loop!!!!!
     par_list = [['IM_time', 'IM'], ['LC_time', 'LC'], ['PS_time', 'PS']]
     par_dict = {'IM': 'Impulse', 'LC': 'Thrust', 'PS': 'Chamber Pressure'}
     prop_dict = {}
 
     # find begin and end of the burn
-    start_value = np.average(data['LC'][:100]) + 5
+    start_value = np.average(data['LC'][:100]) + 5  # 5 is added due to noise
     ignit_index = np.where(data['LC'] > 10)[0][0]
     ignition = data['LC_time'][ignit_index]
     start = data['LC_time'][np.where(data['LC'][ignit_index + 500:] > start_value)[0][0] + ignit_index + 350]
 
     max_index = np.where(data['LC'] == np.max(data['LC']))[0][0]
+    prop_dict['max_LC_index'] = max_index
 
-    end_value = np.average(data['LC'][-100:]) + 5
+    end_value = np.average(data['LC'][-100:]) + 5  # 5 is added due to noise
     end_index = np.where(data['LC'][max_index:] < end_value)[0][0] + max_index
     end = data['LC_time'][end_index]
 
     prop_dict['Burn time']   = (end - start).round(3)
     prop_dict['Ignition time'] = (start - ignition).round(3)
-    prop_dict['Start time'] = start
+    prop_dict['Start time'] = start.round(3)
+    prop_dict['LC_end_value'] = (end_value - 5).round(5)  # 5 is added due to noise
 
     # analyse data
     for [t, y] in par_list:
         # plot data with begin and end indicated as vertical line
-        plt.plot(data[t], data[y])
-        plt.vlines([ignition, start, end], np.min(data[y]), np.max(data[y]), colors='r')
+        # plt.plot(data[t], data[y])
+        # plt.vlines([ignition, start, end], np.min(data[y]), np.max(data[y]), colors='r')
         # plt.show()
 
         # firing properties
@@ -199,5 +226,9 @@ if __name__ == '__main__':
     # save_data([['test_data_2021/Config2_211221_132537.tdms', 34],
     #            ['test_data_2021/ReferenceMotor_211221_114135.tdms', 222],
     #            ['test_data_2021/ReferenceMotor_211222_092347.tdms', 65]])
+
+    # data1 = read_data('Config2_211221_132537')
+    # data2 = read_data('ReferenceMotor_211221_114135')
+    # data3 = read_data('ReferenceMotor_211222_092347')
 
     print(get_properties('Config2_211221_132537'))
