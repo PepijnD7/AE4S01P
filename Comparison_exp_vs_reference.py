@@ -92,7 +92,6 @@ ax[1, 2].set_ylabel("Absolute error [Ns]")
 fig.legend([l1, l2],  # The line objects
            labels=['Test data config II', 'Reference data'],  # The labels for each line
            loc="lower center",  # Position of legend
-           borderaxespad=0.1,  # Small spacing around legend box
            bbox_to_anchor=(0, 0.83, 1, 1),
            ncol=2
            )

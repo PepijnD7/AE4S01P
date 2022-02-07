@@ -59,6 +59,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
     pepa_list = []
     t_list = [0]
     m_accum = 1
+    T_old = T_a
 
     while np.abs(m_accum)>0.01:       # While the difference between m_in and m_out > 0.01, the chamber is "filling"
         S = np.pi * l_p * d_port      # Determine burning surface
@@ -78,11 +79,21 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
             T_c = linearize("Temperature", P_c)
             R = linearize('Gas constant', P_c) * 1000
 
+        gradient = 0
+        print(T_c)
+        T_c = (T_c - T_a) * gradient + T_a
+        c_star = np.sqrt(R * T_c) / vdk
+        print(T_old,T_c,c_star,dpdt)
+        T_old = T_c
+
         rho_c = P_c/R/T_c           # Combustion gas density
         r = regrate(P_c, a, n)      # Regression rate
         m_in = r * S * rho_p        # Mass flow from grain burning
         m_out = A_t * P_c / c_star  # Mass flow through the nozzle
         m_accum = m_in - m_out      # Mass accumulating in the chamber
+        print(m_in,m_out,m_accum)
+        print(P_c)
+        print("\n")
 
         dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * S * r - c_star * A_t * P_c)  # Change in chamber pressure
 

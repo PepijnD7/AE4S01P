@@ -6,38 +6,7 @@ from Read_Provided_data import plot_given_data
 # TODO: Implement variation of a based on temperature variations
 
 
-# set given to True for validation
-given = False
-
-# Propellant data
-n = 0.222
-a = 0.005132 * (10 ** (-6)) ** n
-P_a = 101325
-rho_p = 1720.49
-m_p = 0.758
-l_p = 0.107
-d_out = 0.0766
-d_port = 0.025
-d_t = 8.37 / 1000
-alphast = 12 * np.pi / 180          # Standard setup
-alphaII = 15 * np.pi / 180          # Configuration II
-eps = 4
-T_a = 273.15 + 15
-
-# Given data
-l_p_given = 99.60 / 1000
-d_out_given = 76.6 / 1000
-d_port_given = 24.90 / 1000
-m_p_given = 741.8 / 1000
-alpha_given = 12 * np.pi / 180
-rho_p_given = 1786.5
-
-const = [d_port, d_out, l_p, alphast, eps, a, n, P_a, m_p, rho_p]
-conII = [d_port, d_out, l_p, alphaII, eps, a, n, P_a, m_p, rho_p]
-const_given = [d_port_given, d_out_given, l_p_given, alpha_given, eps, a, n, P_a, m_p_given, rho_p_given]
-
-
-# Regression Rate
+# Auxiliary functions
 def regrate(P, a, n):
     r = a * P**n
     return r
@@ -51,25 +20,24 @@ def Kerckhove(Gamma):
     return np.sqrt(Gamma) * (2 / (1 + Gamma))**(0.5 * (Gamma + 1) / (Gamma - 1))
 
 
-
 def FindPratio(Gamma, eps):
     Guess = 0.1
     for _ in range(10):
         Guess = (Kerckhove(Gamma)**2 / (eps**2 * (2 * Gamma / (Gamma - 1)) * (1 - Guess**((Gamma - 1) / Gamma))))**(Gamma / 2)
     return Guess
 
-
-# Simulation
-def Simulation(con, density = 0.0):
+dt = 0.004
+# Simulation function
+def Simulation(con, density=0.0):   # Propellant density can be entered as an input, otherwise it is determined as m_p/V_grain
     g0 = 9.81
-    d_port, d_out, l_p, alpha, eps, a, n, m_p, P_a, T_a = con
-    a = (1.55 * 10 ** (-5) * (T_a - 273.15) + 4.47 * 10 ** (-3))* (10 ** (-6)) ** n
+    d_port, d_out, d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a = con
+    a = (1.55 * 10 ** (-5) * (T_a - 273.15) + 4.47 * 10 ** (-3))* (10 ** (-6)) ** n     # Determine regression constant
+    # with ambient temp
 
     # INITIAL CONDITIONS and CHAMBER FILL:
     # Parameters that do not change:
     A_t = (d_t ** 2 * np.pi / 4)
     V_p = l_p * ((d_out/2)**2 - (d_port/2)**2) * np.pi
-    dt = 0.0005
 
     if density == 0:
         rho_p = m_p/V_p
@@ -77,13 +45,21 @@ def Simulation(con, density = 0.0):
         rho_p = density
 
     # Parameters that will change:
-    V_c = l_p * (d_port/2)**2 * np.pi
-    P_c = 1*10**5
-    S = np.pi * l_p * d_port
-    T_old = T_a
+    V_c = l_p * (d_port/2)**2 * np.pi   # Chamber volume
+    P_c = P_a                           # Initial chamber pressure = ambient
+    dt = 0.004                          # Small time step for chamber filling
+    dpdt = 1
 
-    # Making lists
-    m_list = []
+    if P_c < 10**6:                 # Find the combustion data from RPA-Lite, using the right function
+        Gamma = linearizeAccumulate('Gamma', P_c)
+        vdk = Kerckhove(Gamma)
+        c_star = linearizeAccumulate('Characteristic velocity_opt', P_c)
+        C_f0 = linearizeAccumulate('Thrust coefficient_opt', P_c)
+        T_c = linearizeAccumulate("Temperature", P_c)
+        R = linearizeAccumulate('Gas Constant', P_c)
+        rho_c = P_c / R / T_c
+
+    m_list = []                         # Lists to append interesting data
     Isp_list = []
     p_list = []
     T_list = []
@@ -91,63 +67,99 @@ def Simulation(con, density = 0.0):
     I_list = [0]
     pepa_list = []
     t_list = [0]
+    m_accum = 1
+    T_old = T_a
 
+    # BURN LOOP
+    dt=0.004                          # Use a larger time step for steady state calculation
+    o = 0                           # Loop counter
     while d_port <= d_out:
-        S = np.pi * l_p * d_port
+        o += 1
+        S = d_port * np.pi * l_p    # Determine burning surface
 
-        if P_c < 1 * 10**6:
-            Gamma = linearizeAccumulate('Gamma', P_c)
-            vdk = Kerckhove(Gamma)
-            c_star = linearizeAccumulate('Characteristic velocity_opt', P_c)
-            C_f0 = linearizeAccumulate('Thrust coefficient_opt', P_c)
-            T_c = linearizeAccumulate("Temperature", P_c)
-            R = linearizeAccumulate('Gas Constant', P_c)
+        P_c = (c_star * (rho_p-rho_c) * a * S / A_t) ** (1 / (1 - n))   # Update chamber pressure in steady state
 
-        if P_c > 1 * 10**6:
-            Gamma = linearize('Gamma', P_c)
-            vdk = Kerckhove(Gamma)
-            c_star = linearize('Characteristic velocity_opt', P_c)
-            C_f0 = linearize('Thrust coefficient_opt', P_c)
-            T_c = linearize("Temperature", P_c)
-            R = linearize('Gas constant', P_c)*1000
+        T_c = linearize("Temperature", P_c)                             # Find combustion data from RPA-Lite
+        R = linearize("Gas constant", P_c) * 1000
+        c_star = linearize('Characteristic velocity_opt', P_c)
+        Gamma = linearize('Gamma', P_c)
+        C_f0 = linearize('Thrust coefficient_opt', P_c)
 
-        # print(T_c,T_old)
-
-        T_c = (T_c - T_old) / 2 + T_old
-        c_star = np.sqrt(R * T_c) / vdk
-        T_old = T_c
-
-        rho_c = P_c/R/T_c
+        rho_c = P_c / R / T_c                                           # Update chamber parameters
         r = regrate(P_c, a, n)
-        m_in = r * S * rho_p
+        m_in = rho_p * r * S
         m_out = A_t * P_c / c_star
-        dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * S * r - c_star * A_t * P_c)  # Add gas density
-        C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
-        T = np.max((C_f * P_c * A_t, 0))
+
+        C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps    # Determine thrust
+        T = C_f * P_c * A_t
         Isp = T / g0 / m_out
-        m_list.append(m_out)
+
+        m_list.append(m_out)        # Adding all data to the lists
         Isp_list.append(Isp)
         p_list.append(P_c)
-        pepa_list.append(P_c * FindPratio(Gamma, eps) / P_a)
+        pepa_list.append(P_c*FindPratio(Gamma, eps)/P_a)
         T_list.append(T)
         r_list.append(r)
         prev_I = I_list[-1]
         I_list.append(prev_I + (T * dt))
         t_list.append(t_list[-1]+dt)
 
-        d_port+= r*dt
-        P_c += dpdt*dt
+        d_port += 2 * r * dt        # Update port diameter
+    print("BURN DONE AT t=", t_list[-1], "\n")
 
+    # # CHAMBER EMPTYING
+    # r=0                             # Regression rate = 0
+    # dt = 0.004
+    # while P_c>P_a:                  # Chamber needs to be emptied until Pc=Pa
+    #     S = np.pi * l_p * d_port
+    #
+    #     if P_c < 10**6:             # Get combustion data from RPA-Lite
+    #         Gamma = linearizeAccumulate('Gamma', P_c)
+    #         vdk = Kerckhove(Gamma)
+    #         c_star = linearizeAccumulate('Characteristic velocity_opt', P_c)
+    #         C_f0 = linearizeAccumulate('Thrust coefficient_opt', P_c)
+    #         T_c = linearizeAccumulate("Temperature", P_c)
+    #         R = linearizeAccumulate('Gas Constant', P_c)
+    #     else:
+    #         Gamma = linearize('Gamma', P_c)
+    #         vdk = Kerckhove(Gamma)
+    #         c_star = linearize('Characteristic velocity_opt', P_c)
+    #         C_f0 = linearize('Thrust coefficient_opt', P_c)
+    #         T_c = linearize("Temperature", P_c)
+    #         R = linearize("Gas constant", P_c) * 1000
+    #
+    #     rho_c = P_c/R/T_c
+    #     m_in = r * S * rho_p
+    #     m_out = A_t * P_c / c_star
+    #     m_accum = m_in - m_out
+    #
+    #     dpdt = vdk**2/V_c * (c_star**2 * (rho_p - rho_c) * S * r - c_star * A_t * P_c)
+    #     C_f = C_f0 * DivLoss(alpha) + (FindPratio(Gamma, eps) - P_a / P_c) * eps
+    #     T = np.max((C_f * P_c * A_t, 0))
+    #     Isp = T / g0 / m_out
+    #
+    #     m_list.append(m_out)
+    #     Isp_list.append(Isp)
+    #     p_list.append(P_c)
+    #     pepa_list.append(P_c * FindPratio(Gamma, eps) / P_a)
+    #     T_list.append(T)
+    #     r_list.append(r)
+    #     prev_I = I_list[-1]
+    #     I_list.append(prev_I + (T * dt))
+    #     t_list.append(t_list[-1]+dt)
+    #
+    #     P_c += dpdt*dt
+    #
+    # print("CHAMBER EMPTY AT t=", t_list[-1], "\n")
     I_list = I_list[1:]
     t_list = t_list[1:]
 
-    return np.array(t_list), np.array(p_list), np.array(I_list), np.array(m_list), np.array(T_list), \
-           np.array(r_list), np.array(Isp_list), np.array(pepa_list)
+    return np.array(t_list), np.array(p_list), np.array(I_list), np.array(m_list), np.array(T_list), np.array(r_list), np.array(Isp_list), np.array(pepa_list)
 
 
 if __name__=='__main__':
     # set given to True for validation
-    given = False
+    given = True
     # Propellant data
     n = 0.222
     a = 0.005132 * (10 ** (-6)) ** n
@@ -171,9 +183,9 @@ if __name__=='__main__':
     alpha_given = 12 * np.pi / 180
     rho_p_given = 1786.5
 
-    const = [d_port, d_out, l_p, alphast, eps, a, n, m_p, P_a, T_a]
-    conII = [d_port, d_out, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
-    const_given = [d_port_given, d_out_given, l_p_given, alpha_given, eps, a, n, m_p_given, P_a, T_a]
+    const = [d_port, d_out, d_t, l_p, alphast, eps, a, n, m_p, P_a, T_a]
+    conII = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
+    const_given = [d_port_given, d_out_given, d_t, l_p_given, alpha_given, eps, a, n, m_p_given, P_a, T_a]
     t_st, p_st, I_st, m_st, T_st, r_st, Isp_st, pepa_st = Simulation(const)
     t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(conII)
     t_given, p_given, _, _, _, _, _, _ = Simulation(const_given, density=rho_p_given)
@@ -261,11 +273,11 @@ if __name__=='__main__':
         plt.legend()
         plt.show()
 
-        # plt.plot(t_II, pepa_II, label='Config. II')
-        # plt.xlabel("Time [s]", fontsize=13)
-        # plt.ylabel(r"$p_e/p_a$", fontsize=13)
-        # plt.grid()
-        # plt.show()
+        plt.plot(t_II, pepa_II, label='Config. II')
+        plt.xlabel("Time [s]", fontsize=13)
+        plt.ylabel(r"$p_e/p_a$", fontsize=13)
+        plt.grid()
+        plt.show()
 
 
     if given:
@@ -277,3 +289,4 @@ if __name__=='__main__':
         plt.show()
 
         plot_given_data([t_given, p_given])
+
