@@ -54,7 +54,7 @@ T_a = 277.15
 # xi_d = 0.75 # Discharge coefficient
 
 const = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=0.865, xi_c=1.019521)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=0.855, xi_c=1.019521)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -113,40 +113,46 @@ for i in range(0,len(time_Pc_list)):
 
 line_width = 1.5
 fig, ax = plt.subplots(2, 3, gridspec_kw={'height_ratios': [2, 1]})
-fig.suptitle("Comparison of simulation data with test data for configuration II, \n without quality factors")
+fig.suptitle("Comparison of simulation data with test data for configuration II, \n with quality factors applied")
 
 l1, = ax[0, 0].plot(time_test_list[500:-2200],T_test_list[500:-2200], label = 'Test data config II', linewidth=line_width)
 l2, = ax[0, 0].plot(time_test_list[500:-2200],T_sim_II_list[500:-2200], label = 'Simulation data config II', linewidth=line_width)
 ax[0, 0].set_ylabel("Thrust [N]")
 ax[0, 0].set_xlabel('Time [s]')
+ax[0,0].grid()
 
 ax[1, 0].plot(time_test_list[500:-2200], T_error[500:-2200], linestyle="--", color='mediumaquamarine')
 ax[1, 0].set_ylabel("Absolute error")
+ax[1,0].grid()
 
 ax[0, 1].plot(time_Pc_list[500:-2200],Pc_test_list[500:-2200],label = 'Test data config II', linewidth=line_width)
 ax[0, 1].plot(time_Pc_list[500:-2200],Pc_sim_II_list[500:-2200],label = 'Simulation data config II', linewidth=line_width)
 ax[0, 1].set_ylabel('Chamber Pressure [Pa]')
 ax[0, 1].set_xlabel('Time [s]')
+ax[0,1].grid()
 
 ax[1, 1].plot(time_Pc_list[500:-2200], Pc_error[500:-2200], linestyle="--", color='mediumaquamarine')
 ax[1, 1].set_ylabel("Absolute error")
+ax[1,1].grid()
 
 ax[0, 2].plot(time_test_list[500:-2200],Imp_test_list[500:-2200],label = 'Test data config II', linewidth=line_width)
 ax[0, 2].plot(time_test_list[500:-2200],Imp_sim_II_list[500:-2200],label = 'Simulation data config II', linewidth=line_width)
 ax[0, 2].set_ylabel('Total Impulse [Ns]')
 ax[0, 2].set_xlabel('Time [s]')
+ax[0,2].grid()
 
 ax[1, 2].plot(time_test_list[500:-2200], Imp_error[500:-2200], linestyle="--", color='mediumaquamarine')
 ax[1, 2].set_ylabel("Absolute error")
+ax[1,2].grid()
 
 fig.legend([l1, l2],  # The line objects
            labels=['Test data config II', 'Reference data'],  # The labels for each line
            loc="lower center",  # Position of legend
            borderaxespad=0.1,  # Small spacing around legend box
-           bbox_to_anchor=(0, 0.83, 1, 1),
+           bbox_to_anchor=(0, 0.9, 1, 1),
            ncol=3
            )
-plt.subplots_adjust(top=0.80)
+plt.subplots_adjust(top=0.88)
 plt.show()
 
 
