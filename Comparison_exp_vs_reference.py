@@ -69,33 +69,45 @@ l1, = ax[0, 0].plot(t[1000:-1000],T_test_list[1000:-1000], label = 'Test data co
 l2, = ax[0, 0].plot(t[1000:-1000],T_ref_list[1000:-1000], label = 'Reference data', linewidth=line_width)
 ax[0, 0].set_ylabel("Thrust [N]")
 ax[0, 0].set_xlabel('Time [s]')
+ax[0,0].grid()
+
 
 ax[1, 0].plot(t[1000:-1000], T_error[1000:-1000], linestyle="--", color='mediumaquamarine')
 ax[1, 0].set_ylabel("Absolute error [N]")
+ax[1,0].grid()
+
 
 ax[0, 1].plot(t_Pc[:-1000],Pc_test_list[:-1000],label = 'Test data config II', linewidth=line_width)
 ax[0, 1].plot(t_Pc[:-1000],Pc_ref_list[:-1000],label = 'Reference data', linewidth=line_width)
 ax[0, 1].set_ylabel('Chamber Pressure [Pa]')
 ax[0, 1].set_xlabel('Time [s]')
+ax[0,1].grid()
+
 
 ax[1, 1].plot(t_Pc[:-1000], Pc_error[:-1000], linestyle="--", color='mediumaquamarine')
 ax[1, 1].set_ylabel("Absolute error [Pa]")
+ax[1,1].grid()
+
 
 ax[0, 2].plot(t[1000:-1000],Imp_test_list[1000:-1000],label = 'Test data config II', linewidth=line_width)
 ax[0, 2].plot(t[1000:-1000],Imp_ref_list[1000:-1000],label = 'Reference data', linewidth=line_width)
 ax[0, 2].set_ylabel('Total Impulse [Ns]')
 ax[0, 2].set_xlabel('Time [s]')
+ax[0,2].grid()
+
 
 ax[1, 2].plot(t[1000:-1000], Imp_error[1000:-1000], linestyle="--", color='mediumaquamarine')
 ax[1, 2].set_ylabel("Absolute error [Ns]")
+ax[1,2].grid()
+
 
 fig.legend([l1, l2],  # The line objects
            labels=['Test data config II', 'Reference data'],  # The labels for each line
            loc="lower center",  # Position of legend
-           bbox_to_anchor=(0, 0.83, 1, 1),
+           bbox_to_anchor=(0, 0.9, 1, 1),
            ncol=2
            )
-plt.subplots_adjust(top=0.80)
+plt.subplots_adjust(top=0.87)
 plt.show()
 
 
