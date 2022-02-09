@@ -51,7 +51,8 @@ eps = 4
 T_a = 276.15
 
 const = [d_port, d_out,d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const,xi_n=0.93, xi_c=0.92315)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=0.93, xi_c=0.92315)
+# t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=1, xi_c=1)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -159,7 +160,7 @@ ax[1, 2].set_ylabel("Absolute error [Ns]")
 ax[1,2].grid()
 
 fig.legend([l1, l2],  # The line objects
-           labels=['Test data config II', 'Reference data'],  # The labels for each line
+           labels=['Test data config II', 'Simulation data'],  # The labels for each line
            loc="lower center",  # Position of legend
            borderaxespad=0.1,  # Small spacing around legend box
            bbox_to_anchor=(0, 0.9, 1, 1),
@@ -171,20 +172,21 @@ plt.show()
 
 #Printing simulation values
 
-print("CHAMBER PRESSURE:\n")
+print("CHAMBER PRESSURE:")
 print("Max [MPa]:", np.max(p_II) * 10 ** -6)
 print("Average [MPa]:", np.average(p_II) * 10 ** -6, "\n")
 
-print("MASS FLOW:\n")
+print("MASS FLOW:")
 print("Max:", np.max(m_II))
 print("Ave:", np.average(m_II), "\n")
 
-print("THRUST:\n")
+print("THRUST:")
 print("Max:", np.max(T_II))
-print("Ave: 15 deg:", np.average(T_II))
+print("Ave: 12 deg:", np.average(T_II), "\n")
 
-print("SPECIFIC IMPULSE:\n")
-print("Ave: 15 deg:", np.average(Isp_II))
+print("SPECIFIC IMPULSE:")
+print("Ave: 12 deg:", np.average(Isp_II), "\n")
 
-print("TOTAL IMPULSE:\n")
-print("15 deg:", np.max(I_II))
+print("TOTAL IMPULSE:")
+print("12 deg:", np.max(I_II))
+
