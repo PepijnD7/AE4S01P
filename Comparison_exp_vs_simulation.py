@@ -29,7 +29,7 @@ for i in range(0,len(time_test),int(dt/0.002)):
     Imp_test_list.append(Imp_test[i])
 
 
-for i in range(0,len(Pc_test),int(dt/0.004)):
+for i in range(0, len(Pc_test), int(dt/0.004)):
     time_Pc_list.append(time_Pc[i])
     Pc_test_list.append(Pc_test[i])
 
@@ -68,8 +68,8 @@ for i in range(0,len(p_II)):
 
 # Find index of start of the burn( actual value is 40.81402 but 40.80002 is deemed accurate enough)
 # Separate index is required for pressure since it has a different amount of data points
-condition = abs(np.array(time_test_list) - get_properties('Config2_211221_132537')['Start time'])
-condition_pressure = abs(np.array(time_Pc_list) - get_properties('Config2_211221_132537')['Start time'])
+condition = abs(np.array(time_test_list) - get_properties('Config2_211221_132537', (2.125-1.390))['Start time'])
+condition_pressure = abs(np.array(time_Pc_list) - get_properties('Config2_211221_132537', (2.125-1.390))['Start time'])
 start_index = np.where(condition < dt)[0][0]
 start_index_pressure = np.where(condition_pressure < dt)[0][0]
 
@@ -154,6 +154,26 @@ fig.legend([l1, l2],  # The line objects
            )
 plt.subplots_adjust(top=0.88)
 plt.show()
+
+#Printing simulation values
+
+print("CHAMBER PRESSURE:\n")
+print("Max [MPa]:", np.max(p_II) * 10 ** -6)
+print("Average [MPa]:", np.average(p_II) * 10 ** -6, "\n")
+
+print("MASS FLOW:\n")
+print("Max:", np.max(m_II))
+print("Ave:", np.average(m_II), "\n")
+
+print("THRUST:\n")
+print("Max:", np.max(T_II))
+print("Ave: 15 deg:", np.average(T_II))
+
+print("SPECIFIC IMPULSE:\n")
+print("Ave: 15 deg:", np.average(Isp_II))
+
+print("TOTAL IMPULSE:\n")
+print("15 deg:", np.max(I_II))
 
 
 
