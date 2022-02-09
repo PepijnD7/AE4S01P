@@ -51,7 +51,8 @@ eps = 4
 T_a = 276.15
 
 const = [d_port, d_out,d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const,xi_n=0.93, xi_c=0.92315)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=0.93, xi_c=0.92315)
+# t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=1, xi_c=1)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -64,12 +65,12 @@ for i in range(0,len(p_II)):
     Imp_sim_II.append(I_II[i])
 
 
-print(get_properties('ReferenceMotor_211222_092347'))
+print(get_properties('ReferenceMotor_211222_092347', (2.158-1.424)))
 
 # Find index of start of the burn( actual value is 40.81402 but 40.80002 is deemed accurate enough)
 # Separate index is required for pressure since it has a different amount of data points
-condition = abs(np.array(time_ref_list) - get_properties('ReferenceMotor_211222_092347')['Start time'])
-condition_pressure = abs(np.array(time_Pc_ref_list) - get_properties('ReferenceMotor_211222_092347')['Start time'])
+condition = abs(np.array(time_ref_list) - get_properties('ReferenceMotor_211222_092347', (2.158-1.424))['Start time'])
+condition_pressure = abs(np.array(time_Pc_ref_list) - get_properties('ReferenceMotor_211222_092347', (2.158-1.424))['Start time'])
 start_index = np.where(condition < dt)[0][0]
 start_index_pressure = np.where(condition_pressure < dt)[0][0]
 
@@ -159,7 +160,7 @@ ax[1, 2].set_ylabel("Absolute error [Ns]")
 ax[1,2].grid()
 
 fig.legend([l1, l2],  # The line objects
-           labels=['Test data config II', 'Reference data'],  # The labels for each line
+           labels=['Test data config II', 'Simulation data'],  # The labels for each line
            loc="lower center",  # Position of legend
            borderaxespad=0.1,  # Small spacing around legend box
            bbox_to_anchor=(0, 0.9, 1, 1),
@@ -167,3 +168,25 @@ fig.legend([l1, l2],  # The line objects
            )
 plt.subplots_adjust(top=0.88)
 plt.show()
+
+
+#Printing simulation values
+
+print("CHAMBER PRESSURE:")
+print("Max [MPa]:", np.max(p_II) * 10 ** -6)
+print("Average [MPa]:", np.average(p_II) * 10 ** -6, "\n")
+
+print("MASS FLOW:")
+print("Max:", np.max(m_II))
+print("Ave:", np.average(m_II), "\n")
+
+print("THRUST:")
+print("Max:", np.max(T_II))
+print("Ave: 12 deg:", np.average(T_II), "\n")
+
+print("SPECIFIC IMPULSE:")
+print("Ave: 12 deg:", np.average(Isp_II), "\n")
+
+print("TOTAL IMPULSE:")
+print("12 deg:", np.max(I_II))
+

@@ -253,6 +253,6 @@ if __name__ == '__main__':
     # data3 = read_data('ReferenceMotor_211222_092347')
 
     # set 'True' to 'False' for data without strain correction
-    print(get_properties('Config2_211221_132537', 0.767, True))
-    print(get_properties('ReferenceMotor_211221_114135', 0.775, True))
-    print(get_properties('ReferenceMotor_211222_092347', 0.775, True))  # same as ref from day 1, since we don't have it
+    print(get_properties('Config2_211221_132537', (2.125-1.390), True))
+    print(get_properties('ReferenceMotor_211221_114135', (2.158-1.424), True))
+    print(get_properties('ReferenceMotor_211222_092347', (2.158-1.424), True))  # same as ref from day 1, since we don't have it
