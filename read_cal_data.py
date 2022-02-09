@@ -227,6 +227,19 @@ def get_properties(filename, m_prop, corrected=True):
 
 
 if __name__ == '__main__':
+    # # raw data
+    # for file, begin, title2 in zip(['test_data_2021/Config2_211221_132537.tdms', 'test_data_2021/ReferenceMotor_211222_092347.tdms'], [30, 65], ['Configuration II', 'Reference motor']):
+    #     raw_data = read_tdms(file, ['LC', 'PS'])
+    #
+    #     for key, label, title1 in [['LC', 'LC [Volt/Volt]', 'Load cell'], ['PS', 'PS [Ampere]', 'Pressure sensor']]:
+    #         t_range = np.where(np.logical_and(raw_data[key][0] > begin, raw_data[key][0] < begin + 25))
+    #         plt.plot(raw_data[key][0][t_range], raw_data[key][1][t_range])
+    #         plt.title(title1 + ' data of ' + title2)
+    #         plt.xlabel('Time [s]')
+    #         plt.ylabel(label)
+    #         plt.grid(True)
+    #         plt.show()
+
     # convert('test_data_2021/Config2_211221_132537.tdms', 34)
     # convert('test_data_2021/ReferenceMotor_211221_114135.tdms', 222)
     # convert('test_data_2021/ReferenceMotor_211222_092347.tdms', 65)
