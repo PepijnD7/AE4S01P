@@ -150,13 +150,20 @@ def read_data(filename, corrected=True):
         # axis1.plot(data_dict['LC_time'], data_dict['LC'], label='not corrected', c='blue')
         # axis2.plot(data_dict['IM_time'], data_dict['IM'], label='not corrected', c='blue')
 
-        props = get_properties(filename)
-        delta_Thrust = props['Max. Thrust'] - props['LC_end_value']
-        factor_corr = props['Max. Thrust'] / delta_Thrust
+        # get properties
+        max_T = np.max(data_dict['LC'])
+        max_T_ind = np.where(data_dict['LC'] == max_T)[0][0]
+        end_T = np.average(data_dict['LC'][-100:])
 
-        data_dict['LC'][props['max_LC_index']:] -= props['LC_end_value']
-        data_dict['LC'][props['max_LC_index']:] *= factor_corr
+        # get correction factor
+        delta_Thrust = max_T - end_T
+        factor_corr = max_T / delta_Thrust
 
+        # correct thrust data
+        data_dict['LC'][max_T_ind:] -= end_T
+        data_dict['LC'][max_T_ind:] *= factor_corr
+
+        # recalculate impulse
         dt = data_dict['LC_time'][1] - data_dict['LC_time'][0]
         impulse = np.zeros(len(data_dict['LC']) + 1)
 
@@ -164,17 +171,15 @@ def read_data(filename, corrected=True):
             impulse[j] = impulse[j - 1] + data_dict['LC'][j - 1] * dt
         data_dict['IM'] = impulse[1:]
 
-        # axis1.plot(data_dict['LC_time'][props['max_LC_index']:], data_dict['LC'][props['max_LC_index']:],
-        #          label='corrected', c='r')
-        # axis2.plot(data_dict['IM_time'][props['max_LC_index']:], data_dict['IM'][props['max_LC_index']:],
-        #          label='corrected', c='r')
+        # axis1.plot(data_dict['LC_time'][max_T_ind:], data_dict['LC'][max_T_ind:], label='corrected', c='r')
+        # axis2.plot(data_dict['IM_time'][max_T_ind:], data_dict['IM'][max_T_ind:], label='corrected', c='r')
         # plt.show()
 
     return data_dict
 
 
-def get_properties(filename):
-    data = read_data(filename, False)  # Keep the second argument as False, otherwise you get infinite loop!!!!!
+def get_properties(filename, m_prop, corrected=True):
+    data = read_data(filename, corrected)
     par_list = [['IM_time', 'IM'], ['LC_time', 'LC'], ['PS_time', 'PS']]
     par_dict = {'IM': 'Impulse', 'LC': 'Thrust', 'PS': 'Chamber Pressure'}
     prop_dict = {}
@@ -206,19 +211,35 @@ def get_properties(filename):
 
         # firing properties
         if y == 'IM':
-            prop_dict['Total ' + par_dict[y]] = data[y][np.where(data[t] - end == np.min(np.abs(data[t] - end)))[0][0]]
+            prop_dict['Total ' + par_dict[y]] = data[y][np.where(data[t] - end == np.min(np.abs(data[t] - end)))[0][0]].round(1)
 
         else:
             closest_start = np.where((data[t] - start).round(4) == np.min(np.abs(data[t] - start)).round(4))[0][0]
             closest_end   = np.where((data[t] - end).round(4)   == np.min(np.abs(data[t] - end)).round(4))[0][0]
 
-            prop_dict['Max. '    + par_dict[y]] = np.max(data[y]).round(1)
-            prop_dict['Average ' + par_dict[y]] = np.average(data[y][closest_start:closest_end]).round(1)
+            prop_dict['Max. ' + par_dict[y]] = np.max(data[y]).round(1)
+            prop_dict['Avg. ' + par_dict[y]] = np.average(data[y][closest_start:closest_end]).round(1)
+
+    prop_dict['Avg. Mass flow'] = (m_prop / prop_dict['Burn time']).round(3)
+    prop_dict['Avg. Isp'] = (prop_dict['Total Impulse'] / (9.80665 * m_prop)).round(3)
 
     return prop_dict
 
 
 if __name__ == '__main__':
+    # # raw data
+    # for file, begin, title2 in zip(['test_data_2021/Config2_211221_132537.tdms', 'test_data_2021/ReferenceMotor_211222_092347.tdms'], [30, 65], ['Configuration II', 'Reference motor']):
+    #     raw_data = read_tdms(file, ['LC', 'PS'])
+    #
+    #     for key, label, title1 in [['LC', 'LC [Volt/Volt]', 'Load cell'], ['PS', 'PS [Ampere]', 'Pressure sensor']]:
+    #         t_range = np.where(np.logical_and(raw_data[key][0] > begin, raw_data[key][0] < begin + 25))
+    #         plt.plot(raw_data[key][0][t_range], raw_data[key][1][t_range])
+    #         plt.title(title1 + ' data of ' + title2)
+    #         plt.xlabel('Time [s]')
+    #         plt.ylabel(label)
+    #         plt.grid(True)
+    #         plt.show()
+
     # convert('test_data_2021/Config2_211221_132537.tdms', 34)
     # convert('test_data_2021/ReferenceMotor_211221_114135.tdms', 222)
     # convert('test_data_2021/ReferenceMotor_211222_092347.tdms', 65)
@@ -231,4 +252,7 @@ if __name__ == '__main__':
     # data2 = read_data('ReferenceMotor_211221_114135')
     # data3 = read_data('ReferenceMotor_211222_092347')
 
-    print(get_properties('Config2_211221_132537'))
+    # set 'True' to 'False' for data without strain correction
+    print(get_properties('Config2_211221_132537', (2.125-1.390), True))
+    print(get_properties('ReferenceMotor_211221_114135', (2.158-1.424), True))
+    print(get_properties('ReferenceMotor_211222_092347', (2.158-1.424), True))  # same as ref from day 1, since we don't have it

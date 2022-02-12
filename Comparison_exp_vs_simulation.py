@@ -29,7 +29,7 @@ for i in range(0,len(time_test),int(dt/0.002)):
     Imp_test_list.append(Imp_test[i])
 
 
-for i in range(0,len(Pc_test),int(dt/0.004)):
+for i in range(0, len(Pc_test), int(dt/0.004)):
     time_Pc_list.append(time_Pc[i])
     Pc_test_list.append(Pc_test[i])
 
@@ -54,6 +54,8 @@ T_a = 277.15
 # xi_d = 0.75 # Discharge coefficient
 
 const = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=0.855, xi_c=1.019521)
+# t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=1, xi_c=1)
 t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const, xi_n=1., xi_c=1.)
 
 # Create lists of simulation data
@@ -68,8 +70,8 @@ for i in range(0,len(p_II)):
 
 # Find index of start of the burn( actual value is 40.81402 but 40.80002 is deemed accurate enough)
 # Separate index is required for pressure since it has a different amount of data points
-condition = abs(np.array(time_test_list) - get_properties('Config2_211221_132537')['Start time'])
-condition_pressure = abs(np.array(time_Pc_list) - get_properties('Config2_211221_132537')['Start time'])
+condition = abs(np.array(time_test_list) - get_properties('Config2_211221_132537', (2.125-1.390))['Start time'])
+condition_pressure = abs(np.array(time_Pc_list) - get_properties('Config2_211221_132537', (2.125-1.390))['Start time'])
 start_index = np.where(condition < dt)[0][0]
 start_index_pressure = np.where(condition_pressure < dt)[0][0]
 
@@ -144,8 +146,8 @@ ax[1, 0].plot(time_test_list[500:-2200], T_error[500:-2200], linestyle="--", col
 ax[1, 0].set_ylabel("Absolute error")
 ax[1,0].grid()
 
-ax[0, 1].plot(time_Pc_list[500:-2200],Pc_test_list[500:-2200],label = 'Test data config II', linewidth=line_width)
-ax[0, 1].plot(time_Pc_list[500:-2200],Pc_sim_II_list[500:-2200],label = 'Simulation data config II', linewidth=line_width)
+ax[0, 1].plot(time_Pc_list[500:-2200],Pc_test_list[500:-2200], label='Test data config II', linewidth=line_width)
+ax[0, 1].plot(time_Pc_list[500:-2200],Pc_sim_II_list[500:-2200], label='Simulation data config II', linewidth=line_width)
 ax[0, 1].set_ylabel('Chamber Pressure [Pa]')
 ax[0, 1].set_xlabel('Time [s]')
 ax[0,1].grid()
@@ -154,8 +156,8 @@ ax[1, 1].plot(time_Pc_list[500:-2200], Pc_error[500:-2200], linestyle="--", colo
 ax[1, 1].set_ylabel("Absolute error")
 ax[1,1].grid()
 
-ax[0, 2].plot(time_test_list[500:-2200],Imp_test_list[500:-2200],label = 'Test data config II', linewidth=line_width)
-ax[0, 2].plot(time_test_list[500:-2200],Imp_sim_II_list[500:-2200],label = 'Simulation data config II', linewidth=line_width)
+ax[0, 2].plot(time_test_list[500:-2200],Imp_test_list[500:-2200], label='Test data config II', linewidth=line_width)
+ax[0, 2].plot(time_test_list[500:-2200],Imp_sim_II_list[500:-2200], label='Simulation data config II', linewidth=line_width)
 ax[0, 2].set_ylabel('Total Impulse [Ns]')
 ax[0, 2].set_xlabel('Time [s]')
 ax[0,2].grid()
@@ -165,7 +167,7 @@ ax[1, 2].set_ylabel("Absolute error")
 ax[1,2].grid()
 
 fig.legend([l1, l2],  # The line objects
-           labels=['Test data config II', 'Reference data'],  # The labels for each line
+           labels=['Test data config II', 'Simulation data'],  # The labels for each line
            loc="lower center",  # Position of legend
            borderaxespad=0.1,  # Small spacing around legend box
            bbox_to_anchor=(0, 0.9, 1, 1),
@@ -173,6 +175,26 @@ fig.legend([l1, l2],  # The line objects
            )
 plt.subplots_adjust(top=0.88)
 plt.show()
+
+#Printing simulation values
+
+print("CHAMBER PRESSURE:\n")
+print("Max [MPa]:", np.max(p_II) * 10 ** -6)
+print("Average [MPa]:", np.average(p_II) * 10 ** -6, "\n")
+
+print("MASS FLOW:\n")
+print("Max:", np.max(m_II))
+print("Ave:", np.average(m_II), "\n")
+
+print("THRUST:\n")
+print("Max:", np.max(T_II))
+print("Ave: 15 deg:", np.average(T_II))
+
+print("SPECIFIC IMPULSE:\n")
+print("Ave: 15 deg:", np.average(Isp_II))
+
+print("TOTAL IMPULSE:\n")
+print("15 deg:", np.max(I_II))
 
 
 
