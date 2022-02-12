@@ -60,6 +60,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
     t_list = [0]
     m_accum = 1
     T_old = T_a
+    gamma_list = []
 
     while np.abs(m_accum)>0.01:       # While the difference between m_in and m_out > 0.01, the chamber is "filling"
         S = np.pi * l_p * d_port      # Determine burning surface
@@ -78,7 +79,6 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
             C_f0 = linearize('Thrust coefficient_opt', P_c)
             T_c = linearize("Temperature", P_c)
             R = linearize('Gas constant', P_c) * 1000
-
         gradient = 0
         print(T_c)
         T_c = (T_c - T_a) * gradient + T_a
@@ -109,7 +109,10 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
         r_list.append(r)
         prev_I = I_list[-1]
         I_list.append(prev_I + (T * dt))
+        gamma_list.append(Gamma)
+
         t_list.append(t_list[-1]+dt)
+
 
         d_port+= r*dt               # Update grain port diameter and chamber pressure
         P_c += dpdt*dt
@@ -163,6 +166,8 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
         r_list.append(r)
         prev_I = I_list[-1]
         I_list.append(prev_I + (T * dt))
+        gamma_list.append(Gamma)
+
         t_list.append(t_list[-1]+dt)
 
         d_port += 2 * r * dt        # Update port diameter
@@ -208,6 +213,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
         prev_I = I_list[-1]
         I_list.append(prev_I + (T * dt))
         t_list.append(t_list[-1]+dt)
+        gamma_list.append(Gamma)
 
         P_c += dpdt*dt
 
@@ -216,8 +222,7 @@ def Simulation(con, density=0.0):   # Propellant density can be entered as an in
     t_list = t_list[1:]
 
     return np.array(t_list), np.array(p_list), np.array(I_list), np.array(m_list), np.array(T_list), \
-           np.array(r_list), np.array(Isp_list), np.array(pepa_list)
-
+           np.array(r_list), np.array(Isp_list), np.array(pepa_list), np.array(gamma_list)
 
 if __name__=='__main__':
     # set given to True for validation

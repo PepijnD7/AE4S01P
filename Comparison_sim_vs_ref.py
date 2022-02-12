@@ -51,7 +51,7 @@ eps = 4
 T_a = 276.15
 
 const = [d_port, d_out,d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const,xi_n=0.93, xi_c=0.92315)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const,xi_n=1., xi_c=1.)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -111,10 +111,11 @@ for i in range(0,len(time_Pc_ref_list)):
 # Compute area under pressure curves to find combustion quality
 A_Pc_ref = []
 A_Pc_sim = []
+A_t = (d_t ** 2 * np.pi / 4)
 for i in range(0,len(time_Pc_ref_list)-1):
-    dA_test = 0.004 * (Pc_ref_list[i] + Pc_ref_list[i+1])/2
+    dA_test = A_t/ 0.734 * 0.004 * (Pc_ref_list[i] + Pc_ref_list[i+1])/2
     A_Pc_ref.append(dA_test)
-    dA_sim = 0.004 * (Pc_sim_II_list[i] + Pc_sim_II_list[i+1])/2
+    dA_sim = A_t/0.775 * 0.004 * (Pc_sim_II_list[i] + Pc_sim_II_list[i+1])/2
     A_Pc_sim.append(dA_sim)
 
 A_Pc_sim = sum(A_Pc_sim)
@@ -122,6 +123,9 @@ A_Pc_ref = sum(A_Pc_ref)
 print(A_Pc_ref)
 print(A_Pc_sim)
 print(A_Pc_ref - A_Pc_sim)
+
+# Compute thrust coefficient
+print(gamma_list)
 
 line_width = 1.5
 fig, ax = plt.subplots(2, 3, gridspec_kw={'height_ratios': [2, 1]})
