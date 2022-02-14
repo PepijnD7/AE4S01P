@@ -194,8 +194,7 @@ def get_properties(filename, m_prop, corrected=True):
     prop_dict['max_LC_index'] = max_index
 
     end_value = np.average(data['LC'][-100:]) + 5  # 5 is added due to noise
-    end_index = np.where(data['LC'][max_index:] < end_value)[0][0] + max_index
-    end = data['LC_time'][end_index]
+    end = data['LC_time'][np.where(data['LC'][max_index:] < end_value)[0][0] + max_index]
 
     prop_dict['Burn time']   = (end - start).round(3)
     prop_dict['Ignition time'] = (start - ignition).round(3)
