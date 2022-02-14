@@ -63,6 +63,7 @@ def Simulation(con, density=0.0,xi_n = 1, xi_c =1, xi_d = 1):   # Propellant den
     r_list = []
     I_list = [0]
     pepa_list = []
+    gamma_list = []
     t_list = [0]
     m_accum = 1
 
@@ -105,7 +106,7 @@ def Simulation(con, density=0.0,xi_n = 1, xi_c =1, xi_d = 1):   # Propellant den
         prev_I = I_list[-1]
         I_list.append(prev_I + (T * dt))
         t_list.append(t_list[-1]+dt)
-
+        gamma_list.append(Gamma)
         d_port+= r*dt               # Update grain port diameter and chamber pressure
         P_c += dpdt*dt
     print("CHAMBER FILLED at t=", t_list[-1],"\n")
@@ -159,6 +160,7 @@ def Simulation(con, density=0.0,xi_n = 1, xi_c =1, xi_d = 1):   # Propellant den
         prev_I = I_list[-1]
         I_list.append(prev_I + (T * dt))
         t_list.append(t_list[-1]+dt)
+        gamma_list.append(Gamma)
 
         d_port += 2 * r * dt        # Update port diameter
     print("BURN DONE AT t=", t_list[-1], "\n")
@@ -203,7 +205,7 @@ def Simulation(con, density=0.0,xi_n = 1, xi_c =1, xi_d = 1):   # Propellant den
         prev_I = I_list[-1]
         I_list.append(prev_I + (T * dt))
         t_list.append(t_list[-1]+dt)
-
+        gamma_list.append(Gamma)
         P_c += dpdt*dt
 
     print("CHAMBER EMPTY AT t=", t_list[-1], "\n")
@@ -211,7 +213,7 @@ def Simulation(con, density=0.0,xi_n = 1, xi_c =1, xi_d = 1):   # Propellant den
     t_list = t_list[1:]
 
     return np.array(t_list), np.array(p_list), np.array(I_list), np.array(m_list), np.array(T_list), \
-           np.array(r_list), np.array(Isp_list), np.array(pepa_list)
+           np.array(r_list), np.array(Isp_list), np.array(pepa_list), np.array(gamma_list)
 
 
 if __name__=='__main__':

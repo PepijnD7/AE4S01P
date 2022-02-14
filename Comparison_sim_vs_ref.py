@@ -5,7 +5,7 @@ from Read_Provided_data import plot_given_data
 from read_cal_data import read_data
 from read_cal_data import get_properties
 from Quality_factors import Simulation
-#from Enginesimu import Simulation
+# from Enginesimu import Simulation
 from Enginesimu import dt
 
 # Get test data of reference test
@@ -48,10 +48,11 @@ d_port = 0.0236
 d_t = 8.3 / 1000
 alpha = 12 * np.pi / 180          # reference Configuration
 eps = 4
+pepc = 0.04917
 T_a = 276.15
 
 const = [d_port, d_out,d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const,xi_n=1., xi_c=1.)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const,xi_n=0.92085, xi_c=0.97537)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -125,7 +126,17 @@ print(A_Pc_sim)
 print(A_Pc_ref - A_Pc_sim)
 
 # Compute thrust coefficient
-print(gamma_list)
+gamma_avg  = sum(gamma_list)/len(gamma_list)
+print(gamma_avg)
+T_ref_list = np.array(T_ref_list)
+Pc_ref_list = np.array(Pc_ref_list)
+Cf_ref = 148.7/(2114340.7 * A_t) - eps * pepc + eps *  P_a/2114340.7 #np.average(T_ref_list[T_ref_list>2.5])/(np.average(Pc_ref_list[Pc_ref_list>P_a]) * A_t) - eps * pepc + eps * P_a/np.average(Pc_ref_list[Pc_ref_list>P_a])
+Cf_sim = np.average(T_sim_II)/(np.average(Pc_sim_II) * A_t) - eps * pepc + eps *  P_a/np.average(Pc_sim_II)
+print("thrust coefficient for reference config is:", Cf_ref)
+print("thrust coefficient for simulation of reference config is:",Cf_sim)
+print("Combustion quality factor is:", A_Pc_ref/A_Pc_sim)
+print("Nozzle quality factor is:", Cf_ref/Cf_sim)
+
 
 line_width = 1.5
 fig, ax = plt.subplots(2, 3, gridspec_kw={'height_ratios': [2, 1]})

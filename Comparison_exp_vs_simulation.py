@@ -6,7 +6,7 @@ from read_cal_data import read_data
 from read_cal_data import get_properties
 from Quality_factors import Simulation
 from Enginesimu import dt
-#from Enginesimu import Simulation
+# from Enginesimu import Simulation
 
 # Get data from read_cal_data
 Imp_test = read_data('Config2_211221_132537')['IM']
@@ -46,6 +46,7 @@ d_port = 0.02478
 d_t = 0.0083
 alphaII = 15 * np.pi / 180          # Configuration II
 eps = 4
+pepc = 0.04918
 T_a = 277.15
 
 # Quality factors
@@ -54,9 +55,9 @@ T_a = 277.15
 # xi_d = 0.75 # Discharge coefficient
 
 const = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=0.855, xi_c=1.019521)
+# t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=0.855, xi_c=1.019521)
 # t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II = Simulation(const, xi_n=1, xi_c=1)
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const, xi_n=1., xi_c=1.)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const, xi_n=0.88644, xi_c=1.0641235)
 
 # Create lists of simulation data
 Pc_sim_II = []  # Chamber pressure during simulation (config 2)
@@ -115,8 +116,18 @@ print(A_Pc_test)
 print(A_Pc_sim)
 print(A_Pc_test - A_Pc_sim)
 
+print(get_properties('Config2_211221_132537', (2.125-1.390)))
 # Compute thrust coefficient
-print(gamma_list)
+gamma_avg = sum(gamma_list)/len(gamma_list)
+print(gamma_avg)
+T_test_list = np.array(T_test_list)
+Pc_test_list = np.array(Pc_test_list)
+Cf_test = 147.2/(2176649.5 * A_t) - eps * pepc + eps *  P_a/2176649.5 #np.average(T_test_list[T_test_list>2.5])/(np.average(Pc_test_list[Pc_test_list>P_a]) * A_t) - eps * pepc + eps * P_a/np.average(Pc_test_list[Pc_test_list>P_a])
+Cf_sim = np.average(T_sim_II)/(np.average(Pc_sim_II) * A_t) - eps * pepc + eps *  P_a/np.average(Pc_sim_II)
+print("thrust coefficient for config II is:", Cf_test)
+print("thrust coefficient for simulation of config II is:",Cf_sim)
+print("Combustion quality factor is:", A_Pc_test/A_Pc_sim)
+print("Nozzle quality factor is:", Cf_test/Cf_sim)
 
 # Create error plots
 T_error = []
