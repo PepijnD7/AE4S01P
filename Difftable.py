@@ -17,8 +17,8 @@ pepc = 0.04917
 T_a = 276.15
 
 const = [d_port, d_out,d_t, l_p, alpha, eps, a, n, m_p, P_a, T_a]
-t_ref, p_ref, I_ref, m_ref, T_ref, r_II, Isp_ref, pepa_ref, gamma_list = Simulation(const, xi_n=0.92085, xi_c=0.97537)
-# t_ref, p_ref, I_ref, m_ref, T_ref, r_ref, Isp_ref, pepa_ref, gamma_list = Simulation(const, xi_n=1.0, xi_c=1.0)
+# t_ref, p_ref, I_ref, m_ref, T_ref, r_II, Isp_ref, pepa_ref, gamma_list = Simulation(const, xi_n=0.92085, xi_c=0.97537)
+t_ref, p_ref, I_ref, m_ref, T_ref, r_ref, Isp_ref, pepa_ref, gamma_list = Simulation(const, xi_n=1.0, xi_c=1.0)
 
 
 
@@ -39,8 +39,8 @@ pepc = 0.04918
 T_a = 277.15
 
 const = [d_port, d_out, d_t, l_p, alphaII, eps, a, n, m_p, P_a, T_a]
-t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const, xi_n=0.88644, xi_c=1.0641235)
-# t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const, xi_n=1, xi_c=1)
+# t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const, xi_n=0.88644, xi_c=1.0641235)
+t_II, p_II, I_II, m_II, T_II, r_II, Isp_II, pepa_II, gamma_list = Simulation(const, xi_n=1, xi_c=1)
 
 
 print("CHAMBER PRESSURE:")
